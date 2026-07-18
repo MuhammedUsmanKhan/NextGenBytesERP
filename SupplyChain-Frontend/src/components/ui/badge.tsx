@@ -7,11 +7,14 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: "border-zinc-200 bg-zinc-100 text-slate-700",
-        secondary: "border-zinc-200 bg-white text-slate-600",
-        destructive: "border-red-200 bg-red-50 text-red-700",
+        default: "border-slate-200 bg-slate-100 text-slate-700",
+        secondary: "border-slate-200 bg-white text-slate-600",
+        destructive: "border-rose-200 bg-rose-50 text-rose-700",
         outline: "text-slate-600",
         success: "border-emerald-200 bg-emerald-50 text-emerald-700",
+        warning: "border-amber-200 bg-amber-50 text-amber-700",
+        info: "border-blue-200 bg-blue-50 text-blue-700",
+        danger: "border-rose-200 bg-rose-50 text-rose-700",
       },
     },
     defaultVariants: {
@@ -30,5 +33,4 @@ function Badge({ className, variant, ...props }: BadgeProps) {
   )
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export { Badge, badgeVariants }

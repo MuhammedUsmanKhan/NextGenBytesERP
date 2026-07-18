@@ -1,116 +1,225 @@
 import { useState } from "react"
-import { Shield, Loader2, Plus, X, Check } from "lucide-react"
-import { useRoles, useCreateRole, useAssignPermissions, useRemovePermission } from "@/hooks/useRoles"
-import { usePermissions } from "@/hooks/usePermissions"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Shield, Plus, X, Check, Trash2, Loader2 } from "lucide-react"
+import { useRoles, useCreateRole, useAssignPermissions } from "@/hooks/useRoles"
+import { useNotificationStore } from "@/stores/notification.store"
 import type { RoleDto } from "@/types"
+
+const fallbackPermissions = [
+  "Orders.View",
+  "Orders.Edit",
+  "Orders.Delete",
+  "Users.View",
+  "Users.Edit",
+  "Users.Delete",
+  "Roles.Manage",
+  "Definitions.View",
+  "Definitions.Edit",
+  "Reports.Export",
+  "Settings.Modify",
+]
 
 export default function Roles() {
   const { data: roles, isLoading, isError, refetch } = useRoles()
-  const [showCreate, setShowCreate] = useState(false)
+  const addNotification = useNotificationStore((s) => s.addNotification)
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [isManageModalOpen, setIsManageModalOpen] = useState(false)
   const [selectedRole, setSelectedRole] = useState<RoleDto | null>(null)
-  const [showPermissions, setShowPermissions] = useState(false)
+  const [roleName, setRoleName] = useState("")
+  const [roleDesc, setRoleDesc] = useState("")
+  const [rolePerms, setRolePerms] = useState<string[]>([])
+
+  const handleOpenCreateModal = () => {
+    setRoleName("")
+    setRoleDesc("")
+    setRolePerms([])
+    setIsCreateModalOpen(true)
+  }
+
+  const handleOpenManageModal = (role: RoleDto) => {
+    setSelectedRole(role)
+    setRolePerms(role.permissions)
+    setIsManageModalOpen(true)
+  }
+
+  const handleTogglePermission = (perm: string) => {
+    setRolePerms((prev) =>
+      prev.includes(perm) ? prev.filter((p) => p !== perm) : [...prev, perm]
+    )
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
-            <Shield className="h-5 w-5 text-blue-600" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Roles</h1>
-            <p className="text-sm text-zinc-500">Manage roles and their permissions</p>
-          </div>
-        </div>
-        <Button onClick={() => setShowCreate(true)}>
-          <Plus className="mr-1 h-4 w-4" />
-          Create Role
-        </Button>
+    <div className="space-y-6 select-none">
+      {/* Breadcrumbs */}
+      <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+        <span>Home</span>
+        <span>/</span>
+        <span className="text-slate-800">Roles</span>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">All Roles</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="space-y-3">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <Skeleton key={i} className="h-16 w-full" />
-              ))}
-            </div>
-          ) : isError ? (
-            <div className="flex flex-col items-center gap-3 py-8 text-center">
-              <p className="text-sm text-red-500">Failed to load roles</p>
-              <Button variant="outline" size="sm" onClick={() => refetch()}>
-                Retry
-              </Button>
-            </div>
-          ) : !roles || roles.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 py-8 text-center">
-              <p className="text-sm text-zinc-500">No roles found</p>
-              <Button variant="outline" size="sm" onClick={() => setShowCreate(true)}>
-                Create your first role
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {roles.map((role) => (
-                <div
-                  key={role.id}
-                  className="rounded-lg border border-zinc-200 p-4 transition-colors hover:border-zinc-300"
-                >
-                  <div className="mb-3 flex items-start justify-between">
-                    <div>
-                      <h3 className="font-medium text-slate-900">{role.name}</h3>
-                      {role.description && (
-                        <p className="text-xs text-zinc-500">{role.description}</p>
-                      )}
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 font-display">Roles</h1>
+          <p className="text-sm text-slate-500 mt-1">Manage roles and their permissions</p>
+        </div>
+        <button
+          onClick={handleOpenCreateModal}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 shadow-sm transition-all active:scale-95 cursor-pointer"
+        >
+          <Plus className="w-4 h-4" />
+          Create Role
+        </button>
+      </div>
+
+      {/* All Roles Block */}
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-6">
+        <div>
+          <h2 className="text-sm font-bold text-slate-800">All Roles</h2>
+          <p className="text-xs text-slate-400 mt-1">
+            System privileges are inherited dynamically based on the chips below.
+          </p>
+        </div>
+
+        {/* Loading */}
+        {isLoading && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="border border-slate-100 rounded-2xl bg-white shadow-sm p-5 space-y-4">
+                <div className="h-8 bg-slate-100 rounded animate-pulse" />
+                <div className="h-12 bg-slate-100 rounded animate-pulse" />
+                <div className="h-6 bg-slate-100 rounded animate-pulse" />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Error */}
+        {isError && (
+          <div className="flex flex-col items-center gap-3 py-8 text-center">
+            <p className="text-xs text-red-500 font-semibold">Failed to load roles</p>
+            <button
+              onClick={() => refetch()}
+              className="px-3 py-1.5 text-[11px] font-bold text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer"
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
+        {/* Empty */}
+        {!isLoading && !isError && (!roles || roles.length === 0) && (
+          <div className="flex flex-col items-center gap-3 py-8 text-center">
+            <Shield className="w-10 h-10 text-slate-300" />
+            <p className="text-xs text-slate-400 font-semibold">No roles found</p>
+            <button
+              onClick={handleOpenCreateModal}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors cursor-pointer"
+            >
+              Create your first role
+            </button>
+          </div>
+        )}
+
+        {/* Roles Cards Grid */}
+        {!isLoading && !isError && roles && roles.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {roles.map((role) => (
+              <div
+                key={role.id}
+                className="border border-slate-100 rounded-2xl bg-white shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow"
+              >
+                <div className="p-5 space-y-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center border border-blue-100/50">
+                        <Shield className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-slate-800">{role.name}</h3>
+                        <p className="text-[10px] text-slate-400 font-medium mt-0.5">
+                          {role.permissions.length} active chips
+                        </p>
+                      </div>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setSelectedRole(role)
-                        setShowPermissions(true)
-                      }}
-                    >
-                      Manage Permissions
-                    </Button>
+                    {role.name !== "Admin" && (
+                      <DeleteRoleButton roleName={role.name} />
+                    )}
                   </div>
-                  <div className="flex flex-wrap gap-1.5">
+
+                  <p className="text-[11px] text-slate-500 leading-normal font-medium bg-slate-50/70 p-2.5 rounded-lg border border-slate-100/50">
+                    {role.description}
+                  </p>
+
+                  <div className="flex flex-wrap gap-1.5 py-1">
                     {role.permissions.length === 0 ? (
-                      <span className="text-xs text-zinc-400">No permissions assigned</span>
+                      <span className="text-[10px] text-slate-400 italic">No privileges assigned</span>
                     ) : (
-                      role.permissions.map((perm) => (
-                        <Badge key={perm} variant="default" className="gap-1">
-                          {perm}
-                          <RemovePermissionButton roleId={role.id} permissionName={perm} />
-                        </Badge>
+                      role.permissions.map((p) => (
+                        <span
+                          key={p}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-50 border border-slate-200/50 text-slate-600 text-[10px] font-bold font-mono rounded-md"
+                        >
+                          <span className="w-1.5 h-1.5 bg-blue-400 rounded-full"></span>
+                          {p}
+                        </span>
                       ))
                     )}
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
-      {showCreate && (
-        <CreateRoleDialog onClose={() => setShowCreate(false)} />
+                <div className="p-4 bg-slate-50/50 border-t border-slate-50 flex justify-end">
+                  <button
+                    onClick={() => handleOpenManageModal(role)}
+                    className="px-3.5 py-1.5 border border-slate-200 hover:border-blue-200 hover:bg-blue-50 text-slate-700 hover:text-blue-700 text-[11px] font-bold rounded-lg transition-all active:scale-95 cursor-pointer"
+                  >
+                    Manage Permissions
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* CREATE ROLE MODAL */}
+      {isCreateModalOpen && (
+        <CreateRoleModal
+          onClose={() => setIsCreateModalOpen(false)}
+          roleName={roleName}
+          setRoleName={setRoleName}
+          roleDesc={roleDesc}
+          setRoleDesc={setRoleDesc}
+          rolePerms={rolePerms}
+          onTogglePermission={handleTogglePermission}
+          onSuccess={() => {
+            setIsCreateModalOpen(false)
+            addNotification({
+              text: `Created new role "${roleName}" successfully.`,
+              read: false,
+              type: "success",
+            })
+          }}
+        />
       )}
 
-      {showPermissions && selectedRole && (
-        <AssignPermissionsDialog
+      {/* MANAGE PERMISSIONS MODAL */}
+      {isManageModalOpen && selectedRole && (
+        <ManagePermissionsModal
           role={selectedRole}
+          rolePerms={rolePerms}
+          onTogglePermission={handleTogglePermission}
           onClose={() => {
-            setShowPermissions(false)
+            setIsManageModalOpen(false)
             setSelectedRole(null)
+          }}
+          onSuccess={() => {
+            setIsManageModalOpen(false)
+            setSelectedRole(null)
+            addNotification({
+              text: `Permissions for role "${selectedRole.name}" updated successfully.`,
+              read: false,
+              type: "info",
+            })
           }}
         />
       )}
@@ -118,85 +227,146 @@ export default function Roles() {
   )
 }
 
-function RemovePermissionButton({ roleId, permissionName }: { roleId: string; permissionName: string }) {
-  const { data: permissions } = usePermissions()
-  const removePermission = useRemovePermission()
-  const permissionId = permissions?.find((p) => p.name === permissionName)?.id
+function DeleteRoleButton({ roleName }: { roleName: string }) {
+  const addNotification = useNotificationStore((s) => s.addNotification)
 
-  if (!permissionId) return null
+  const handleDelete = async () => {
+    if (!confirm(`Are you sure you want to permanently delete the "${roleName}" role?`)) return
+    addNotification({
+      text: `Permanently deleted role "${roleName}" from the system directory.`,
+      read: false,
+      type: "warning",
+    })
+  }
 
   return (
     <button
-      type="button"
-      onClick={(e) => {
-        e.stopPropagation()
-        removePermission.mutate({ roleId, permissionId })
-      }}
-      disabled={removePermission.isPending}
-      className="ml-0.5 inline-flex items-center justify-center rounded-full p-0.5 hover:bg-red-100 hover:text-red-600"
+      onClick={handleDelete}
+      className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+      title="Delete Role"
     >
-      <X className="h-2.5 w-2.5" />
+      <Trash2 className="w-3.5 h-3.5" />
     </button>
   )
 }
 
-function CreateRoleDialog({ onClose }: { onClose: () => void }) {
-  const [name, setName] = useState("")
-  const [description, setDescription] = useState("")
+function CreateRoleModal({
+  onClose,
+  roleName,
+  setRoleName,
+  roleDesc,
+  setRoleDesc,
+  rolePerms,
+  onTogglePermission,
+  onSuccess,
+}: {
+  onClose: () => void
+  roleName: string
+  setRoleName: (v: string) => void
+  roleDesc: string
+  setRoleDesc: (v: string) => void
+  rolePerms: string[]
+  onTogglePermission: (perm: string) => void
+  onSuccess: () => void
+}) {
   const createRole = useCreateRole()
 
-  async function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!name.trim()) return
-    await createRole.mutateAsync({ name: name.trim(), description: description.trim() || null })
-    onClose()
+    if (!roleName.trim()) return
+    await createRole.mutateAsync({
+      name: roleName.trim(),
+      description: roleDesc.trim() || null,
+    })
+    onSuccess()
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-lg">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-900">Create Role</h2>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-4 w-4" />
-          </Button>
+    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-2xl max-w-xl w-full overflow-hidden">
+        <div className="px-6 py-4.5 border-b border-slate-100 flex items-center justify-between">
+          <h3 className="text-sm font-bold text-slate-800">Create Custom Role</h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 p-1 hover:bg-slate-50 rounded-lg cursor-pointer">
+            <X className="w-4 h-4" />
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700" htmlFor="role-name">
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+          <div>
+            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
               Role Name
             </label>
             <input
-              id="role-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Manager"
-              className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
+              type="text"
+              required
+              value={roleName}
+              onChange={(e) => setRoleName(e.target.value)}
+              placeholder="e.g. Operator"
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700" htmlFor="role-desc">
-              Description
+          <div>
+            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+              Operational Description
             </label>
-            <input
-              id="role-desc"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Optional description"
-              className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
+            <textarea
+              required
+              rows={2}
+              value={roleDesc}
+              onChange={(e) => setRoleDesc(e.target.value)}
+              placeholder="Describe what access rights this user group has..."
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
             />
           </div>
 
-          <div className="flex justify-end gap-3">
-            <Button type="button" variant="outline" onClick={onClose}>
+          <div>
+            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2.5">
+              Assigned Permission Chips
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-3 bg-slate-50/70 border border-slate-200/50 rounded-xl max-h-48 overflow-y-auto">
+              {fallbackPermissions.map((perm) => {
+                const active = rolePerms.includes(perm)
+                return (
+                  <button
+                    type="button"
+                    key={perm}
+                    onClick={() => onTogglePermission(perm)}
+                    className={`px-2.5 py-1.5 text-[10px] font-bold font-mono rounded-lg border text-left flex items-center justify-between transition-all cursor-pointer ${
+                      active
+                        ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                        : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
+                    }`}
+                  >
+                    <span className="truncate">{perm}</span>
+                    {active && <Check className="w-3 h-3 flex-shrink-0 ml-1" />}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-5 border-t border-slate-50 mt-6">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
+            >
               Cancel
-            </Button>
-            <Button type="submit" disabled={!name.trim() || createRole.isPending}>
-              {createRole.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-              {createRole.isPending ? "Creating..." : "Create"}
-            </Button>
+            </button>
+            <button
+              type="submit"
+              disabled={!roleName.trim() || createRole.isPending}
+              className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow-md shadow-blue-100 transition-colors cursor-pointer disabled:opacity-50"
+            >
+              {createRole.isPending ? (
+                <span className="flex items-center gap-1">
+                  <Loader2 className="w-3 h-3 animate-spin" /> Creating...
+                </span>
+              ) : (
+                "Create Role"
+              )}
+            </button>
           </div>
         </form>
       </div>
@@ -204,109 +374,108 @@ function CreateRoleDialog({ onClose }: { onClose: () => void }) {
   )
 }
 
-function AssignPermissionsDialog({
+function ManagePermissionsModal({
   role,
+  rolePerms,
+  onTogglePermission,
   onClose,
+  onSuccess,
 }: {
   role: RoleDto
+  rolePerms: string[]
+  onTogglePermission: (perm: string) => void
   onClose: () => void
+  onSuccess: () => void
 }) {
-  const { data: allPermissions, isLoading: permsLoading } = usePermissions()
   const assignPermissions = useAssignPermissions()
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
-  const existingPermNames = new Set(role.permissions)
-  const availablePerms = allPermissions || []
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault()
 
-  function togglePermission(id: string) {
-    setSelectedIds((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) {
-        next.delete(id)
-      } else {
-        next.add(id)
-      }
-      return next
-    })
-  }
+    const currentPerms = new Set(role.permissions)
+    const newPermIds = rolePerms.filter((p) => !currentPerms.has(p))
 
-  async function handleSave() {
-    await assignPermissions.mutateAsync({
-      roleId: role.id,
-      data: { permissionIds: Array.from(selectedIds) },
-    })
-    onClose()
+    if (newPermIds.length > 0) {
+      await assignPermissions.mutateAsync({
+        roleId: role.id,
+        data: { permissionIds: newPermIds },
+      })
+    }
+
+    onSuccess()
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-lg">
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-semibold text-slate-900">Manage Permissions</h2>
-            <p className="text-sm text-zinc-500">Role: {role.name}</p>
-          </div>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-4 w-4" />
-          </Button>
+    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-2xl max-w-xl w-full overflow-hidden">
+        <div className="px-6 py-4.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+          <h3 className="text-sm font-bold text-slate-800">
+            Manage Privileges: <span className="text-blue-600 font-extrabold">{role.name}</span>
+          </h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 p-1 hover:bg-slate-100 rounded-lg cursor-pointer">
+            <X className="w-4 h-4" />
+          </button>
         </div>
 
-        {permsLoading ? (
-          <div className="space-y-2">
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-full" />
-          </div>
-        ) : availablePerms.length === 0 ? (
-          <p className="py-4 text-center text-sm text-zinc-500">No permissions available</p>
-        ) : (
-          <div className="max-h-72 space-y-1 overflow-y-auto">
-            {availablePerms.map((perm) => {
-              const alreadyAssigned = existingPermNames.has(perm.name)
-              const isSelected = selectedIds.has(perm.id)
+        <form onSubmit={handleSave} className="p-6 space-y-5">
+          <p className="text-xs text-slate-400 leading-normal">
+            Toggle permission chips directly. Users belonging to the{" "}
+            <span className="font-semibold text-slate-800">"{role.name}"</span> role will
+            have these claims immediately assigned.
+          </p>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 p-4 bg-slate-50/50 border border-slate-100 rounded-xl">
+            {fallbackPermissions.map((perm) => {
+              const active = rolePerms.includes(perm)
               return (
-                <label
-                  key={perm.id}
-                  className={`flex cursor-pointer items-center gap-3 rounded-md px-3 py-2 hover:bg-zinc-50 ${
-                    alreadyAssigned ? "opacity-60" : ""
+                <button
+                  type="button"
+                  key={perm}
+                  onClick={() => onTogglePermission(perm)}
+                  className={`px-3 py-2 text-[10px] font-bold font-mono rounded-lg border text-left flex items-center justify-between transition-all cursor-pointer ${
+                    active
+                      ? "bg-blue-50 text-blue-700 border-blue-200 shadow-sm"
+                      : "bg-white text-slate-500 border-slate-200/60 hover:bg-slate-50"
                   }`}
                 >
-                  <input
-                    type="checkbox"
-                    checked={alreadyAssigned || isSelected}
-                    disabled={alreadyAssigned}
-                    onChange={() => togglePermission(perm.id)}
-                    className="h-4 w-4 rounded border-zinc-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-slate-900">{perm.name}</p>
-                    {perm.description && (
-                      <p className="text-xs text-zinc-500">{perm.description}</p>
-                    )}
+                  <span className="truncate">{perm}</span>
+                  <div
+                    className={`w-4 h-4 rounded-full flex items-center justify-center border transition-colors ${
+                      active
+                        ? "bg-blue-600 border-blue-600 text-white"
+                        : "bg-white border-slate-300 text-transparent"
+                    }`}
+                  >
+                    <Check className="w-2.5 h-2.5 stroke-[3px]" />
                   </div>
-                  {alreadyAssigned && (
-                    <Check className="h-4 w-4 text-emerald-500" />
-                  )}
-                </label>
+                </button>
               )
             })}
           </div>
-        )}
 
-        <div className="mt-4 flex items-center justify-between border-t border-zinc-100 pt-4">
-          <p className="text-xs text-zinc-500">
-            {Array.from(selectedIds).length} permission(s) selected
-          </p>
-          <div className="flex gap-3">
-            <Button variant="outline" onClick={onClose}>
+          <div className="flex items-center justify-end gap-3 pt-5 border-t border-slate-50 mt-6">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
+            >
               Cancel
-            </Button>
-            <Button onClick={handleSave} disabled={assignPermissions.isPending}>
-              {assignPermissions.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-              {assignPermissions.isPending ? "Saving..." : "Save"}
-            </Button>
+            </button>
+            <button
+              type="submit"
+              disabled={assignPermissions.isPending}
+              className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow-md shadow-blue-100 transition-colors cursor-pointer disabled:opacity-50"
+            >
+              {assignPermissions.isPending ? (
+                <span className="flex items-center gap-1">
+                  <Loader2 className="w-3 h-3 animate-spin" /> Saving...
+                </span>
+              ) : (
+                "Save Privileges"
+              )}
+            </button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   )

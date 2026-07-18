@@ -17,7 +17,7 @@ export function Breadcrumbs() {
   const segments = pathname.split("/").filter(Boolean)
 
   return (
-    <nav className="flex items-center gap-1.5 text-sm text-zinc-500">
+    <nav className="flex items-center gap-1.5 text-sm text-slate-500">
       <Link to="/" className="flex items-center hover:text-blue-600 transition-colors">
         <Home className="h-4 w-4" />
       </Link>
@@ -27,7 +27,7 @@ export function Breadcrumbs() {
         const isLast = index === segments.length - 1
         return (
           <span key={segment} className="flex items-center gap-1.5">
-            <ChevronRight className="h-3.5 w-3.5 text-zinc-300" />
+            <ChevronRight className="h-3.5 w-3.5 text-slate-300" />
             {isLast ? (
               <span className="font-medium text-slate-700">{label}</span>
             ) : (
