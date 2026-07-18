@@ -1,0 +1,68 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using SupplyChainManagement.Domain.Authentication;
+using SupplyChainManagement.Infrastructure.Identity;
+
+namespace SupplyChainManagement.Infrastructure.Persistence.Seed;
+
+public static class AuthSeedData
+{
+    public static readonly Guid AdminRoleId = Guid.Parse("A1B2C3D4-E5F6-7890-ABCD-EF1234567890");
+    public static readonly Guid EditorRoleId = Guid.Parse("B2C3D4E5-F6A7-8901-BCDE-F12345678901");
+    public static readonly Guid ViewerRoleId = Guid.Parse("C3D4E5F6-A7B8-9012-CDEF-123456789012");
+
+    public static readonly Guid PermOrdersView = Guid.Parse("D4E5F6A7-B8C9-0123-DEF1-234567890123");
+    public static readonly Guid PermOrdersEdit = Guid.Parse("E5F6A7B8-C9D0-1234-EF12-345678901234");
+    public static readonly Guid PermOrdersDelete = Guid.Parse("F6A7B8C9-D0E1-2345-F123-456789012345");
+    public static readonly Guid PermUsersView = Guid.Parse("A7B8C9D0-E1F2-3456-AB23-456789012345");
+    public static readonly Guid PermUsersEdit = Guid.Parse("B8C9D0E1-F2A3-4567-BC34-567890123456");
+    public static readonly Guid PermUsersDelete = Guid.Parse("C9D0E1F2-A3B4-5678-CD45-678901234567");
+    public static readonly Guid PermRolesManage = Guid.Parse("D0E1F2A3-B4C5-6789-DE56-789012345678");
+
+    public static IEnumerable<Permission> DefaultPermissions =>
+    [
+        new(PermOrdersView, "Orders.View", "View orders"),
+        new(PermOrdersEdit, "Orders.Edit", "Edit orders"),
+        new(PermOrdersDelete, "Orders.Delete", "Delete orders"),
+        new(PermUsersView, "Users.View", "View users"),
+        new(PermUsersEdit, "Users.Edit", "Edit users"),
+        new(PermUsersDelete, "Users.Delete", "Delete users"),
+        new(PermRolesManage, "Roles.Manage", "Manage roles and permissions"),
+    ];
+
+    public static IEnumerable<ApplicationRole> DefaultRoles =>
+    [
+        new() { Id = AdminRoleId, Name = "Admin", NormalizedName = "ADMIN", Description = "Full system access" },
+        new() { Id = EditorRoleId, Name = "Editor", NormalizedName = "EDITOR", Description = "Can view and edit records" },
+        new() { Id = ViewerRoleId, Name = "Viewer", NormalizedName = "VIEWER", Description = "Read-only access" },
+    ];
+
+    public static IEnumerable<RolePermission> DefaultRolePermissions =>
+    [
+        // Admin — all permissions
+        new(AdminRoleId, PermOrdersView),
+        new(AdminRoleId, PermOrdersEdit),
+        new(AdminRoleId, PermOrdersDelete),
+        new(AdminRoleId, PermUsersView),
+        new(AdminRoleId, PermUsersEdit),
+        new(AdminRoleId, PermUsersDelete),
+        new(AdminRoleId, PermRolesManage),
+
+        // Editor — view + edit
+        new(EditorRoleId, PermOrdersView),
+        new(EditorRoleId, PermOrdersEdit),
+        new(EditorRoleId, PermUsersView),
+        new(EditorRoleId, PermUsersEdit),
+
+        // Viewer — view only
+        new(ViewerRoleId, PermOrdersView),
+        new(ViewerRoleId, PermUsersView),
+    ];
+
+    public static void Seed(ModelBuilder builder)
+    {
+        builder.Entity<Permission>().HasData(DefaultPermissions);
+        builder.Entity<ApplicationRole>().HasData(DefaultRoles);
+        builder.Entity<RolePermission>().HasData(DefaultRolePermissions);
+    }
+}
