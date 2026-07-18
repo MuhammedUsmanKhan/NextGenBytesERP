@@ -179,6 +179,23 @@ public sealed class RoleManagementService : IRoleManagementService
         }
     }
 
+    public async Task<List<UserDto>> GetAllUsersAsync()
+    {
+        var users = await _userManager.Users
+            .AsNoTracking()
+            .OrderBy(u => u.Email)
+            .ToListAsync();
+
+        var userDtos = new List<UserDto>();
+        foreach (var user in users)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+            userDtos.Add(new UserDto(user.Id, user.Email!, [.. roles]));
+        }
+
+        return userDtos;
+    }
+
     public async Task<List<RoleDto>> GetUserRolesAsync(Guid userId)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());

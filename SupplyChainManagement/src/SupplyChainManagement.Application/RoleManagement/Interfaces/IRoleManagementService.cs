@@ -12,4 +12,5 @@ public interface IRoleManagementService
     Task AssignRolesToUserAsync(Guid userId, AssignRolesRequest request);
     Task RemoveRoleFromUserAsync(Guid userId, Guid roleId);
     Task<List<RoleDto>> GetUserRolesAsync(Guid userId);
+    Task<List<UserDto>> GetAllUsersAsync();
 }

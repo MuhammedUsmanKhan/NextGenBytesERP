@@ -17,6 +17,16 @@ public sealed class UsersController : ControllerBase
         _roleManagementService = roleManagementService;
     }
 
+    [HttpGet]
+    [EndpointSummary("List all users with their roles")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetAll()
+    {
+        var users = await _roleManagementService.GetAllUsersAsync();
+        return Ok(users);
+    }
+
     [HttpGet("{userId:guid}/roles")]
     [EndpointSummary("Get all roles assigned to a user")]
     [ProducesResponseType(StatusCodes.Status200OK)]

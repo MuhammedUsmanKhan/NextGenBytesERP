@@ -11,6 +11,7 @@ import {
   Users,
   ChevronLeft,
   ChevronRight,
+  Shield,
 } from "lucide-react"
 
 const navigation = [
@@ -18,9 +19,10 @@ const navigation = [
   { name: "Sales", icon: ShoppingCart, path: "/sales" },
   { name: "Purchases", icon: Package, path: "/purchases" },
   { name: "Definitions", icon: FolderTree, path: "/definitions" },
+  { name: "Users & Roles", icon: Users, path: "/users" },
+  { name: "Roles", icon: Shield, path: "/roles" },
   { name: "Reports", icon: BarChart3, path: "/reports" },
   { name: "Settings", icon: Settings, path: "/settings" },
-  { name: "Users & Roles", icon: Users, path: "/users" },
 ]
 
 export function Sidebar() {

@@ -9,6 +9,7 @@ const routeLabels: Record<string, string> = {
   reports: "Reports",
   settings: "Settings",
   users: "Users & Roles",
+  roles: "Roles",
 }
 
 export function Breadcrumbs() {

@@ -11,10 +11,12 @@ namespace SupplyChainManagement.Api.Controllers.V1;
 public sealed class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
+    private readonly IWebHostEnvironment _env;
 
-    public AuthController(IAuthService authService)
+    public AuthController(IAuthService authService, IWebHostEnvironment env)
     {
         _authService = authService;
+        _env = env;
     }
 
     [HttpPost("login")]
@@ -144,7 +146,7 @@ public sealed class AuthController : ControllerBase
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
+            Secure = !_env.IsDevelopment(),
             SameSite = SameSiteMode.Strict,
             Path = "/api/v1/auth",
             Expires = DateTime.UtcNow.AddDays(7)
