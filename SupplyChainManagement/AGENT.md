@@ -15,6 +15,19 @@ Before implementing ANY feature, ALWAYS read the following documents in order:
 5. `docs/business-rules.md`
 6. `docs/module-template.md`
 
+## Coding Guidelines
+
+Before generating any new module, service, controller, or entity,
+read and follow this file exactly:
+
+7. `docs/ERP_CODING_GUIDELINES.md`
+
+Do not write any code until you have read it.
+
+Follow it exactly. Do not deviate from the patterns, naming,
+or structure defined there. If something is not covered in
+that file, ask before inventing a new pattern.
+
 These documents are mandatory and override any assumptions. If a document conflicts
 with a request, flag the conflict instead of silently choosing one side.
 

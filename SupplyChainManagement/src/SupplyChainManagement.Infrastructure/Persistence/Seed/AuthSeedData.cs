@@ -18,6 +18,8 @@ public static class AuthSeedData
     public static readonly Guid PermUsersEdit = Guid.Parse("B8C9D0E1-F2A3-4567-BC34-567890123456");
     public static readonly Guid PermUsersDelete = Guid.Parse("C9D0E1F2-A3B4-5678-CD45-678901234567");
     public static readonly Guid PermRolesManage = Guid.Parse("D0E1F2A3-B4C5-6789-DE56-789012345678");
+    public static readonly Guid PermDefinitionsView = Guid.Parse("E1F2A3B4-C5D6-7890-EF12-345678901234");
+    public static readonly Guid PermDefinitionsEdit = Guid.Parse("F2A3B4C5-D6E7-8901-F123-456789012345");
 
     public static IEnumerable<Permission> DefaultPermissions =>
     [
@@ -28,13 +30,15 @@ public static class AuthSeedData
         new(PermUsersEdit, "Users.Edit", "Edit users"),
         new(PermUsersDelete, "Users.Delete", "Delete users"),
         new(PermRolesManage, "Roles.Manage", "Manage roles and permissions"),
+        new(PermDefinitionsView, "Definitions.View", "View definitions"),
+        new(PermDefinitionsEdit, "Definitions.Edit", "Edit definitions"),
     ];
 
     public static IEnumerable<ApplicationRole> DefaultRoles =>
     [
-        new() { Id = AdminRoleId, Name = "Admin", NormalizedName = "ADMIN", Description = "Full system access" },
-        new() { Id = EditorRoleId, Name = "Editor", NormalizedName = "EDITOR", Description = "Can view and edit records" },
-        new() { Id = ViewerRoleId, Name = "Viewer", NormalizedName = "VIEWER", Description = "Read-only access" },
+        new() { Id = AdminRoleId, Name = "Admin", NormalizedName = "ADMIN", Description = "Full system access", ConcurrencyStamp = "e727cd96-79be-4860-9ff8-c4fcb0e267f6" },
+        new() { Id = EditorRoleId, Name = "Editor", NormalizedName = "EDITOR", Description = "Can view and edit records", ConcurrencyStamp = "0002ffa9-791c-4d5a-874c-450a380349e4" },
+        new() { Id = ViewerRoleId, Name = "Viewer", NormalizedName = "VIEWER", Description = "Read-only access", ConcurrencyStamp = "8d31f82b-ad70-4602-a000-23e1e7f5d4f2" },
     ];
 
     public static IEnumerable<RolePermission> DefaultRolePermissions =>
@@ -47,16 +51,21 @@ public static class AuthSeedData
         new(AdminRoleId, PermUsersEdit),
         new(AdminRoleId, PermUsersDelete),
         new(AdminRoleId, PermRolesManage),
+        new(AdminRoleId, PermDefinitionsView),
+        new(AdminRoleId, PermDefinitionsEdit),
 
         // Editor — view + edit
         new(EditorRoleId, PermOrdersView),
         new(EditorRoleId, PermOrdersEdit),
         new(EditorRoleId, PermUsersView),
         new(EditorRoleId, PermUsersEdit),
+        new(EditorRoleId, PermDefinitionsView),
+        new(EditorRoleId, PermDefinitionsEdit),
 
         // Viewer — view only
         new(ViewerRoleId, PermOrdersView),
         new(ViewerRoleId, PermUsersView),
+        new(ViewerRoleId, PermDefinitionsView),
     ];
 
     public static void Seed(ModelBuilder builder)
