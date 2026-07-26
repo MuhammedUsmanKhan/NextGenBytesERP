@@ -41,6 +41,10 @@ public sealed record CreateProductRequest(
     [MaxLength(100)] string? ColorScheme,
     [Required][MaxLength(20)] string Status);
 
+public sealed record NextProductCodeResponse(
+    Guid ProductTypeId,
+    string ProductCode);
+
 public sealed record UpdateProductRequest(
     [Required][MaxLength(200)] string Name,
     [Required] Guid ProductTypeId,

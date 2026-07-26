@@ -11,10 +11,17 @@ namespace SupplyChainManagement.Api.Controllers.V1;
 public sealed class DefinitionsController : ControllerBase
 {
     private readonly IDefinitionsService _definitionsService;
+    private readonly IProductTypeService _productTypeService;
+    private readonly IUnitService _unitService;
 
-    public DefinitionsController(IDefinitionsService definitionsService)
+    public DefinitionsController(
+        IDefinitionsService definitionsService,
+        IProductTypeService productTypeService,
+        IUnitService unitService)
     {
         _definitionsService = definitionsService;
+        _productTypeService = productTypeService;
+        _unitService = unitService;
     }
 
     private string CurrentUser => User.Identity?.Name ?? "system";
@@ -128,9 +135,10 @@ public sealed class DefinitionsController : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
         [FromQuery] string? search = null,
-        [FromQuery] string? status = null)
+        [FromQuery] string? status = null,
+        [FromQuery] Guid? mainCategoryId = null)
     {
-        var result = await _definitionsService.GetAllSubCategoriesAsync(page, pageSize, search, status);
+        var result = await _definitionsService.GetAllSubCategoriesAsync(page, pageSize, search, status, mainCategoryId);
         return Ok(result);
     }
 
@@ -547,6 +555,180 @@ public sealed class DefinitionsController : ControllerBase
     public async Task<IActionResult> DeleteTransporter(Guid id)
     {
         var result = await _definitionsService.DeleteTransporterAsync(id, CurrentUser);
+        if (!result.Success)
+            return NotFound(result);
+        return Ok(result);
+    }
+
+    // ── Product Types ─────────────────────────────────────────
+
+    [HttpGet("product-types")]
+    [RequirePermission("Definitions.View")]
+    [EndpointSummary("List product types (paginated)")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetProductTypes(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string? search = null,
+        [FromQuery] string? status = null)
+    {
+        var result = await _productTypeService.GetAllAsync(page, pageSize, search, status);
+        return Ok(result);
+    }
+
+    [HttpGet("product-types/{id:guid}")]
+    [RequirePermission("Definitions.View")]
+    [EndpointSummary("Get product type by ID")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetProductType(Guid id)
+    {
+        var result = await _productTypeService.GetByIdAsync(id);
+        if (!result.Success)
+            return NotFound(result);
+        return Ok(result);
+    }
+
+    [HttpPost("product-types")]
+    [RequirePermission("Definitions.Edit")]
+    [EndpointSummary("Create a product type")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> CreateProductType([FromBody] CreateProductTypeRequest request)
+    {
+        var result = await _productTypeService.CreateAsync(request, CurrentUser);
+        return Ok(result);
+    }
+
+    [HttpPut("product-types/{id:guid}")]
+    [RequirePermission("Definitions.Edit")]
+    [EndpointSummary("Update a product type")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateProductType(Guid id, [FromBody] UpdateProductTypeRequest request)
+    {
+        var result = await _productTypeService.UpdateAsync(id, request, CurrentUser);
+        if (!result.Success)
+            return NotFound(result);
+        return Ok(result);
+    }
+
+    [HttpPatch("product-types/{id:guid}/status")]
+    [RequirePermission("Definitions.Edit")]
+    [EndpointSummary("Update product type status")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateProductTypeStatus(Guid id, [FromBody] UpdateStatusRequest request)
+    {
+        var result = await _productTypeService.UpdateStatusAsync(id, request, CurrentUser);
+        if (!result.Success)
+            return NotFound(result);
+        return Ok(result);
+    }
+
+    [HttpDelete("product-types/{id:guid}")]
+    [RequirePermission("Definitions.Edit")]
+    [EndpointSummary("Soft delete a product type")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteProductType(Guid id)
+    {
+        var result = await _productTypeService.DeleteAsync(id, CurrentUser);
+        if (!result.Success)
+            return NotFound(result);
+        return Ok(result);
+    }
+
+    // ── Units ─────────────────────────────────────────────────
+
+    [HttpGet("units")]
+    [RequirePermission("Definitions.View")]
+    [EndpointSummary("List units (paginated)")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetUnits(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string? search = null,
+        [FromQuery] string? status = null)
+    {
+        var result = await _unitService.GetAllAsync(page, pageSize, search, status);
+        return Ok(result);
+    }
+
+    [HttpGet("units/{id:guid}")]
+    [RequirePermission("Definitions.View")]
+    [EndpointSummary("Get unit by ID")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetUnit(Guid id)
+    {
+        var result = await _unitService.GetByIdAsync(id);
+        if (!result.Success)
+            return NotFound(result);
+        return Ok(result);
+    }
+
+    [HttpPost("units")]
+    [RequirePermission("Definitions.Edit")]
+    [EndpointSummary("Create a unit")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> CreateUnit([FromBody] CreateUnitRequest request)
+    {
+        var result = await _unitService.CreateAsync(request, CurrentUser);
+        return Ok(result);
+    }
+
+    [HttpPut("units/{id:guid}")]
+    [RequirePermission("Definitions.Edit")]
+    [EndpointSummary("Update a unit")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateUnit(Guid id, [FromBody] UpdateUnitRequest request)
+    {
+        var result = await _unitService.UpdateAsync(id, request, CurrentUser);
+        if (!result.Success)
+            return NotFound(result);
+        return Ok(result);
+    }
+
+    [HttpPatch("units/{id:guid}/status")]
+    [RequirePermission("Definitions.Edit")]
+    [EndpointSummary("Update unit status")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateUnitStatus(Guid id, [FromBody] UpdateStatusRequest request)
+    {
+        var result = await _unitService.UpdateStatusAsync(id, request, CurrentUser);
+        if (!result.Success)
+            return NotFound(result);
+        return Ok(result);
+    }
+
+    [HttpDelete("units/{id:guid}")]
+    [RequirePermission("Definitions.Edit")]
+    [EndpointSummary("Soft delete a unit")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteUnit(Guid id)
+    {
+        var result = await _unitService.DeleteAsync(id, CurrentUser);
         if (!result.Success)
             return NotFound(result);
         return Ok(result);

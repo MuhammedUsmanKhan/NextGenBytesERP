@@ -1,4 +1,4 @@
-export type DefinitionTab = "main-categories" | "sub-categories" | "brands" | "warehouses" | "product-groups" | "transporters"
+export type DefinitionTab = "main-categories" | "sub-categories" | "brands" | "warehouses" | "product-groups" | "transporters" | "product-types" | "units"
 
 export const DEFINITION_TABS: { key: DefinitionTab; label: string }[] = [
   { key: "main-categories", label: "Main Category" },
@@ -7,6 +7,8 @@ export const DEFINITION_TABS: { key: DefinitionTab; label: string }[] = [
   { key: "warehouses", label: "Warehouse" },
   { key: "product-groups", label: "Product Group" },
   { key: "transporters", label: "Transporter" },
+  { key: "product-types", label: "Product Types" },
+  { key: "units", label: "Units" },
 ]
 
 export interface MainCategoryDto {
@@ -67,13 +69,34 @@ export interface TransporterDto {
   updatedAt: string | null
 }
 
+export interface ProductTypeDto {
+  id: string
+  code: string
+  name: string
+  codePrefix: number
+  status: "Active" | "Inactive"
+  createdAt: string
+  updatedAt: string | null
+}
+
+export interface UnitDto {
+  id: string
+  code: string
+  name: string
+  shortName: string
+  decimalPlaces: number
+  status: "Active" | "Inactive"
+  createdAt: string
+  updatedAt: string | null
+}
+
 export interface MainCategoryLookupDto {
   id: string
   code: string
   name: string
 }
 
-export type DefinitionDto = MainCategoryDto | SubCategoryDto | BrandDto | WarehouseDto | ProductGroupDto | TransporterDto
+export type DefinitionDto = MainCategoryDto | SubCategoryDto | BrandDto | WarehouseDto | ProductGroupDto | TransporterDto | ProductTypeDto | UnitDto
 
 export interface CreateMainCategoryRequest {
   code: string
@@ -150,6 +173,36 @@ export interface UpdateTransporterRequest {
   code: string
   name: string
   contactNumber: string | null
+  status: "Active" | "Inactive"
+}
+
+export interface CreateProductTypeRequest {
+  code: string
+  name: string
+  codePrefix: number
+  status: "Active" | "Inactive"
+}
+
+export interface UpdateProductTypeRequest {
+  code: string
+  name: string
+  codePrefix: number
+  status: "Active" | "Inactive"
+}
+
+export interface CreateUnitRequest {
+  code: string
+  name: string
+  shortName: string
+  decimalPlaces: number
+  status: "Active" | "Inactive"
+}
+
+export interface UpdateUnitRequest {
+  code: string
+  name: string
+  shortName: string
+  decimalPlaces: number
   status: "Active" | "Inactive"
 }
 

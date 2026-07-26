@@ -64,13 +64,30 @@ const entityConfigs: Record<DefinitionTab, EntityConfig> = {
     updateStatus: ({ id, status }) => definitionsApi.updateTransporterStatus(id, { status }),
     delete: (id) => definitionsApi.deleteTransporter(id),
   },
+  "product-types": {
+    queryKey: ["definitions", "product-types"],
+    getAll: (params) => definitionsApi.getProductTypes(params) as Promise<PagedResponse<DefinitionDto>>,
+    create: (data) => definitionsApi.createProductType(data as definitionsTypes.CreateProductTypeRequest),
+    update: ({ id, data }) => definitionsApi.updateProductType(id, data as definitionsTypes.UpdateProductTypeRequest),
+    updateStatus: ({ id, status }) => definitionsApi.updateProductTypeStatus(id, { status }),
+    delete: (id) => definitionsApi.deleteProductType(id),
+  },
+  units: {
+    queryKey: ["definitions", "units"],
+    getAll: (params) => definitionsApi.getUnits(params) as Promise<PagedResponse<DefinitionDto>>,
+    create: (data) => definitionsApi.createUnit(data as definitionsTypes.CreateUnitRequest),
+    update: ({ id, data }) => definitionsApi.updateUnit(id, data as definitionsTypes.UpdateUnitRequest),
+    updateStatus: ({ id, status }) => definitionsApi.updateUnitStatus(id, { status }),
+    delete: (id) => definitionsApi.deleteUnit(id),
+  },
 }
 
-export function useDefinitionList(tab: DefinitionTab, params: DefinitionQueryParams = {}) {
+export function useDefinitionList(tab: DefinitionTab, params: DefinitionQueryParams = {}, enabled = true) {
   const config = entityConfigs[tab]
   return useQuery({
     queryKey: [...config.queryKey, params],
     queryFn: () => config.getAll(params),
+    enabled,
   })
 }
 

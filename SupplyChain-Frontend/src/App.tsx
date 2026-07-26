@@ -4,6 +4,11 @@ import { Toaster } from "sonner"
 import { AppShell } from "@/app/components/AppShell"
 import Dashboard from "@/app/routes/Dashboard"
 import Definitions from "@/app/routes/Definitions"
+import Products from "@/app/routes/Products"
+import InventoryOpeningStock from "@/app/routes/InventoryOpeningStock"
+import InventoryPage from "@/app/routes/InventoryPage"
+import InventoryTransactions from "@/app/routes/InventoryTransactions"
+import AuditLogs from "@/app/routes/AuditLogs"
 import Login from "@/app/routes/Login"
 import Users from "@/app/routes/Users"
 import Roles from "@/app/routes/Roles"
@@ -42,6 +47,11 @@ export default function App() {
               <Route element={<AppShell />}>
                 <Route index element={<Dashboard />} />
                 <Route path="definitions" element={<Definitions />} />
+                <Route path="products" element={<Products />} />
+                <Route path="inventory/opening-stock" element={<InventoryOpeningStock />} />
+                <Route path="inventory/stock" element={<InventoryPage />} />
+                <Route path="inventory/transactions" element={<InventoryTransactions />} />
+                <Route path="audit-logs" element={<AuditLogs />} />
                 <Route path="users" element={<Users />} />
                 <Route path="roles" element={<Roles />} />
                 <Route path="sales" element={<Sales />} />

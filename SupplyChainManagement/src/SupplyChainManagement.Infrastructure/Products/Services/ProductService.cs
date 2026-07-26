@@ -228,4 +228,27 @@ public sealed class ProductService : IProductService
 
         return ApiResponse<bool>.Ok(true, "Product deleted successfully.");
     }
+
+    public async Task<ApiResponse<NextProductCodeResponse>> GetNextProductCodeAsync(Guid productTypeId)
+    {
+        var productType = await _context.ProductTypes
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == productTypeId);
+
+        if (productType is null)
+            return ApiResponse<NextProductCodeResponse>.Fail($"ProductType with ID '{productTypeId}' not found.");
+
+        var sequence = await _context.ProductTypeSequences
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.ProductTypeId == productTypeId);
+
+        if (sequence is null)
+            return ApiResponse<NextProductCodeResponse>.Fail($"No sequence found for ProductTypeId '{productTypeId}'.");
+
+        var nextNumber = sequence.LastNumber + 1;
+        var productCode = (productType.CodePrefix + nextNumber).ToString();
+
+        return ApiResponse<NextProductCodeResponse>.Ok(
+            new NextProductCodeResponse(productTypeId, productCode));
+    }
 }

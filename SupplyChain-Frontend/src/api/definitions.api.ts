@@ -7,6 +7,8 @@ import type {
   WarehouseDto,
   ProductGroupDto,
   TransporterDto,
+  ProductTypeDto,
+  UnitDto,
   MainCategoryLookupDto,
   CreateMainCategoryRequest,
   CreateSubCategoryRequest,
@@ -14,12 +16,16 @@ import type {
   CreateWarehouseRequest,
   CreateProductGroupRequest,
   CreateTransporterRequest,
+  CreateProductTypeRequest,
+  CreateUnitRequest,
   UpdateMainCategoryRequest,
   UpdateSubCategoryRequest,
   UpdateBrandRequest,
   UpdateWarehouseRequest,
   UpdateProductGroupRequest,
   UpdateTransporterRequest,
+  UpdateProductTypeRequest,
+  UpdateUnitRequest,
   UpdateStatusRequest,
 } from "@/types/definition.types"
 
@@ -30,6 +36,7 @@ export interface DefinitionQueryParams {
   pageSize?: number
   search?: string
   status?: string
+  mainCategoryId?: string
 }
 
 export async function getMainCategories(params?: DefinitionQueryParams) {
@@ -179,4 +186,52 @@ export async function updateTransporterStatus(id: string, data: UpdateStatusRequ
 
 export async function deleteTransporter(id: string) {
   await api.delete(`${BASE}/transporters/${id}`)
+}
+
+export async function getProductTypes(params?: DefinitionQueryParams) {
+  const response = await api.get<ApiResponse<PagedResponse<ProductTypeDto>>>(`${BASE}/product-types`, { params })
+  return response.data.data
+}
+
+export async function createProductType(data: CreateProductTypeRequest) {
+  const response = await api.post<ApiResponse<ProductTypeDto>>(`${BASE}/product-types`, data)
+  return response.data.data
+}
+
+export async function updateProductType(id: string, data: UpdateProductTypeRequest) {
+  const response = await api.put<ApiResponse<ProductTypeDto>>(`${BASE}/product-types/${id}`, data)
+  return response.data.data
+}
+
+export async function updateProductTypeStatus(id: string, data: UpdateStatusRequest) {
+  const response = await api.patch<ApiResponse<ProductTypeDto>>(`${BASE}/product-types/${id}/status`, data)
+  return response.data.data
+}
+
+export async function deleteProductType(id: string) {
+  await api.delete(`${BASE}/product-types/${id}`)
+}
+
+export async function getUnits(params?: DefinitionQueryParams) {
+  const response = await api.get<ApiResponse<PagedResponse<UnitDto>>>(`${BASE}/units`, { params })
+  return response.data.data
+}
+
+export async function createUnit(data: CreateUnitRequest) {
+  const response = await api.post<ApiResponse<UnitDto>>(`${BASE}/units`, data)
+  return response.data.data
+}
+
+export async function updateUnit(id: string, data: UpdateUnitRequest) {
+  const response = await api.put<ApiResponse<UnitDto>>(`${BASE}/units/${id}`, data)
+  return response.data.data
+}
+
+export async function updateUnitStatus(id: string, data: UpdateStatusRequest) {
+  const response = await api.patch<ApiResponse<UnitDto>>(`${BASE}/units/${id}/status`, data)
+  return response.data.data
+}
+
+export async function deleteUnit(id: string) {
+  await api.delete(`${BASE}/units/${id}`)
 }

@@ -19,6 +19,7 @@ public sealed class AuthIntegrationTests : IClassFixture<WebApplicationFactory<P
         _factory = factory.WithWebHostBuilder(builder =>
         {
             builder.UseSetting("environment", "Testing");
+            builder.UseSetting("UseInMemoryDatabase", "true");
         });
     }
 
@@ -44,7 +45,7 @@ public sealed class AuthIntegrationTests : IClassFixture<WebApplicationFactory<P
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
-    [Fact(Skip = "Requires SQL Server")]
+    [Fact]
     public async Task GetRoles_WithUserWithRolesManagePermission_Returns200()
     {
         var client = _factory.CreateClient();
@@ -68,7 +69,7 @@ public sealed class AuthIntegrationTests : IClassFixture<WebApplicationFactory<P
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
-    [Fact(Skip = "Requires SQL Server")]
+    [Fact]
     public async Task GetPermissions_WithRolesManagePermission_Returns200()
     {
         var client = _factory.CreateClient();

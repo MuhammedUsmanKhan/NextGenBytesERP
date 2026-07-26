@@ -15,7 +15,7 @@ public interface IDefinitionsService
     Task<ApiResponse<List<MainCategoryLookupDto>>> GetMainCategoryLookupAsync();
 
     Task<ApiResponse<PagedResponse<SubCategoryResponse>>> GetAllSubCategoriesAsync(
-        int page, int pageSize, string? search, string? status);
+        int page, int pageSize, string? search, string? status, Guid? mainCategoryId);
     Task<ApiResponse<SubCategoryResponse>> GetSubCategoryByIdAsync(Guid id);
     Task<ApiResponse<SubCategoryResponse>> CreateSubCategoryAsync(CreateSubCategoryRequest request, string createdBy);
     Task<ApiResponse<SubCategoryResponse>> UpdateSubCategoryAsync(Guid id, UpdateSubCategoryRequest request, string updatedBy);

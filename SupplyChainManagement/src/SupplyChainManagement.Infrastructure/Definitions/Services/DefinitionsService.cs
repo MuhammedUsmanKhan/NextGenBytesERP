@@ -146,7 +146,7 @@ public sealed class DefinitionsService : IDefinitionsService
     // ── Sub Categories ───────────────────────────────────────
 
     public async Task<ApiResponse<PagedResponse<SubCategoryResponse>>> GetAllSubCategoriesAsync(
-        int page, int pageSize, string? search, string? status)
+        int page, int pageSize, string? search, string? status, Guid? mainCategoryId)
     {
         IQueryable<SubCategory> query = _context.SubCategories
             .AsNoTracking()
@@ -157,6 +157,9 @@ public sealed class DefinitionsService : IDefinitionsService
 
         if (!string.IsNullOrWhiteSpace(status))
             query = query.Where(x => x.Status == status);
+
+        if (mainCategoryId.HasValue)
+            query = query.Where(x => x.MainCategoryId == mainCategoryId.Value);
 
         var totalCount = await query.CountAsync();
 

@@ -48,6 +48,19 @@ public sealed class ProductsController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("next-code")]
+    [EndpointSummary("Preview the next auto-generated product code for a product type")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> GetNextProductCode([FromQuery] Guid productTypeId)
+    {
+        var result = await _productService.GetNextProductCodeAsync(productTypeId);
+        if (!result.Success)
+            return NotFound(result);
+        return Ok(result);
+    }
+
     [HttpPost]
     [EndpointSummary("Create a product (ProductCode auto-generated)")]
     [ProducesResponseType(StatusCodes.Status200OK)]

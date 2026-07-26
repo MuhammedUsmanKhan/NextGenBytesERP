@@ -61,8 +61,6 @@ public sealed class ProductTypeService : IProductTypeService
     public async Task<ApiResponse<ProductTypeResponse>> CreateAsync(
         CreateProductTypeRequest request, string createdBy)
     {
-        await using var tx = await _context.Database.BeginTransactionAsync();
-
         var entity = new ProductType
         {
             Id = Guid.NewGuid(),
@@ -85,7 +83,6 @@ public sealed class ProductTypeService : IProductTypeService
         _context.ProductTypeSequences.Add(sequence);
 
         await _context.SaveChangesAsync();
-        await tx.CommitAsync();
 
         return ApiResponse<ProductTypeResponse>.Ok(entity.ToResponse(), "ProductType created successfully.");
     }

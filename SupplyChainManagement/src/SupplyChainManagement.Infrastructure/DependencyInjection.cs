@@ -26,7 +26,12 @@ public static class DependencyInjection
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection");
         services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlServer(connectionString));
+        {
+            if (configuration.GetValue<bool>("UseInMemoryDatabase"))
+                options.UseInMemoryDatabase("AppDb");
+            else
+                options.UseSqlServer(connectionString);
+        });
 
         services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
         {
