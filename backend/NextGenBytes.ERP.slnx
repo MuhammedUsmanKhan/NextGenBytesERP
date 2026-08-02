@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/NextGenBytes.ERP.Api/NextGenBytes.ERP.Api.csproj" />
+    <Project Path="src/NextGenBytes.ERP.Application/NextGenBytes.ERP.Application.csproj" />
+    <Project Path="src/NextGenBytes.ERP.Domain/NextGenBytes.ERP.Domain.csproj" />
+    <Project Path="src/NextGenBytes.ERP.Infrastructure/NextGenBytes.ERP.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/NextGenBytes.ERP.IntegrationTests/NextGenBytes.ERP.IntegrationTests.csproj" />
+    <Project Path="tests/NextGenBytes.ERP.UnitTests/NextGenBytes.ERP.UnitTests.csproj" />
+  </Folder>
+</Solution>
