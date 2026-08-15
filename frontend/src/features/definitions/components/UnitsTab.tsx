@@ -84,10 +84,6 @@ export default function UnitsTab() {
     return () => clearTimeout(timer)
   }, [searchQuery])
 
-  useEffect(() => {
-    setPage(1)
-  }, [debouncedSearch, statusFilter])
-
   const { data: pagedData, isLoading } = useDefinitionList("units", {
     page,
     pageSize: PAGE_SIZE,
@@ -152,14 +148,14 @@ export default function UnitsTab() {
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => { setSearchQuery(e.target.value); setPage(1) }}
               placeholder="Search units..."
               className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
             />
           </div>
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) => { setStatusFilter(e.target.value); setPage(1) }}
             className="px-3 py-2 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-white"
           >
             {statusFilterOptions.map((opt) => (

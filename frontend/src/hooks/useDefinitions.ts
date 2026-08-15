@@ -13,6 +13,7 @@ import type {
   ProductTypeDto,
   UnitDto,
   VendorDto,
+  CustomerDto,
   DefinitionDto,
 } from "@/types/definition.types"
 import type { PagedResponse } from "@/types"
@@ -28,6 +29,7 @@ type DefinitionTabMap = {
   "product-types": ProductTypeDto
   units: UnitDto
   vendors: VendorDto
+  customers: CustomerDto
 }
 
 type EntityConfig<T> = {
@@ -112,6 +114,14 @@ const entityConfigs = {
     updateStatus: ({ id, status }) => definitionsApi.updateVendorStatus(id, { status }),
     delete: (id) => definitionsApi.deleteVendor(id),
   } satisfies EntityConfig<VendorDto>,
+  customers: {
+    queryKey: ["definitions", "customers"],
+    getAll: (params) => definitionsApi.getCustomers(params),
+    create: (data) => definitionsApi.createCustomer(data as definitionsTypes.CreateCustomerRequest),
+    update: ({ id, data }) => definitionsApi.updateCustomer(id, data as definitionsTypes.UpdateCustomerRequest),
+    updateStatus: ({ id, status }) => definitionsApi.updateCustomerStatus(id, { status }),
+    delete: (id) => definitionsApi.deleteCustomer(id),
+  } satisfies EntityConfig<CustomerDto>,
 }
 
 export function useDefinitionList<T extends DefinitionTab>(tab: T, params: DefinitionQueryParams = {}, enabled = true) {
@@ -260,6 +270,14 @@ export function useNextVendorCode() {
   return useQuery({
     queryKey: ["definitions", "vendors", "next-code"],
     queryFn: definitionsApi.getNextVendorCode,
+    staleTime: 0,
+  })
+}
+
+export function useNextCustomerCode() {
+  return useQuery({
+    queryKey: ["definitions", "customers", "next-code"],
+    queryFn: definitionsApi.getNextCustomerCode,
     staleTime: 0,
   })
 }

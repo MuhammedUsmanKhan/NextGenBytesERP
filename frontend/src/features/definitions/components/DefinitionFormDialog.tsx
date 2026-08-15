@@ -1,19 +1,21 @@
 import { useEffect } from "react"
-import { useForm, type UseFormReturn } from "react-hook-form"
+import { useForm, type UseFormReturn, type FieldValues, type Resolver, type DefaultValues } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2 } from "lucide-react"
 import { z } from "zod"
+
+type FormValuesOf<T extends z.ZodTypeAny> = z.infer<T> & FieldValues
 
 interface DefinitionFormDialogProps<T extends z.ZodTypeAny> {
   open: boolean
   onClose: () => void
   title: string
   schema: T
-  defaultValues: any
-  onSubmit: (data: any) => void
+  defaultValues: FormValuesOf<T>
+  onSubmit: (data: FormValuesOf<T>) => void
   isSubmitting: boolean
   isEditMode: boolean
-  children: (form: UseFormReturn<any>) => React.ReactNode
+  children: (form: UseFormReturn<FormValuesOf<T>>) => React.ReactNode
 }
 
 export function DefinitionFormDialog<T extends z.ZodTypeAny>({
@@ -27,9 +29,11 @@ export function DefinitionFormDialog<T extends z.ZodTypeAny>({
   isEditMode,
   children,
 }: DefinitionFormDialogProps<T>) {
-  const form = useForm<any>({
-    resolver: zodResolver(schema as any),
-    defaultValues,
+  const resolver = (zodResolver as unknown as (schema: T) => Resolver<FormValuesOf<T>>)(schema)
+
+  const form = useForm<FormValuesOf<T>>({
+    resolver,
+    defaultValues: defaultValues as DefaultValues<FormValuesOf<T>>,
   })
 
   useEffect(() => {

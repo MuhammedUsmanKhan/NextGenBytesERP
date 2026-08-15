@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { NavLink, useLocation } from "react-router-dom"
 import { motion } from "motion/react"
 import { cn } from "@/lib/utils"
@@ -59,17 +59,19 @@ export function Sidebar() {
     .filter((item) => item.children?.some((child) => pathname.startsWith(child.path)))
     .map((item) => item.name)
   const [expandedGroups, setExpandedGroups] = useState<string[]>(defaultExpanded)
+  const [lastPath, setLastPath] = useState(pathname)
 
-  useEffect(() => {
+  if (pathname !== lastPath) {
     const names = navigation
       .filter((item) => "children" in item)
       .filter((item) => item.children?.some((child) => pathname.startsWith(child.path)))
       .map((item) => item.name)
+    setLastPath(pathname)
     setExpandedGroups((prev) => {
       const next = new Set([...prev, ...names])
       return Array.from(next)
     })
-  }, [pathname])
+  }
 
   const toggleGroup = (name: string) => {
     setExpandedGroups((prev) =>

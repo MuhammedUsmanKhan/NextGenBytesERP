@@ -3,6 +3,9 @@ import { Search, Loader2 } from "lucide-react"
 import { useGetTransactions } from "@/hooks"
 import { useGetProducts } from "@/hooks"
 import { useDefinitionList } from "@/hooks"
+import type { ProductDto } from "@/types/product.types"
+import type { WarehouseDto } from "@/types/definition.types"
+import type { InventoryTransactionDto } from "@/types/inventory.types"
 
 const PAGE_SIZE = 20
 
@@ -28,10 +31,6 @@ export default function InventoryTransactions() {
     return () => clearTimeout(timer)
   }, [searchQuery])
 
-  useEffect(() => {
-    setPage(1)
-  }, [debouncedSearch, productFilter, warehouseFilter, typeFilter])
-
   const { data: pagedData, isLoading } = useGetTransactions({
     page,
     pageSize: PAGE_SIZE,
@@ -47,10 +46,10 @@ export default function InventoryTransactions() {
   const totalPages = pagedData?.totalPages ?? 0
   const currentPage = pagedData?.page ?? 1
 
-  const productOptions = (productsData?.items ?? []).map((p: any) => ({ id: p.id, productCode: p.productCode, productName: p.productName }))
-  const warehouseOptions = (warehousesData?.items ?? []).map((w: any) => ({ id: w.id, code: w.code, name: w.name }))
+  const productOptions = (productsData?.items ?? []).map((p: ProductDto) => ({ id: p.id, productCode: p.productCode, productName: p.productName }))
+  const warehouseOptions = (warehousesData?.items ?? []).map((w: WarehouseDto) => ({ id: w.id, code: w.code, name: w.name }))
 
-  const filteredItems = items.filter((item: any) => {
+  const filteredItems = items.filter((item: InventoryTransactionDto) => {
     if (!debouncedSearch) return true
     const q = debouncedSearch.toLowerCase()
     return item.productCode?.toLowerCase().includes(q) ||
@@ -78,20 +77,20 @@ export default function InventoryTransactions() {
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => { setSearchQuery(e.target.value); setPage(1) }}
               placeholder="Search..."
               className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
             />
           </div>
-          <select value={productFilter} onChange={(e) => setProductFilter(e.target.value)} className="px-3 py-2 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-white">
+          <select value={productFilter} onChange={(e) => { setProductFilter(e.target.value); setPage(1) }} className="px-3 py-2 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-white">
             <option value="">All Products</option>
-            {productOptions.map((p: any) => (<option key={p.id} value={p.id}>{p.productCode} - {p.productName}</option>))}
+            {productOptions.map((p) => (<option key={p.id} value={p.id}>{p.productCode} - {p.productName}</option>))}
           </select>
-          <select value={warehouseFilter} onChange={(e) => setWarehouseFilter(e.target.value)} className="px-3 py-2 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-white">
+          <select value={warehouseFilter} onChange={(e) => { setWarehouseFilter(e.target.value); setPage(1) }} className="px-3 py-2 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-white">
             <option value="">All Warehouses</option>
-            {warehouseOptions.map((w: any) => (<option key={w.id} value={w.id}>{w.code} - {w.name}</option>))}
+            {warehouseOptions.map((w) => (<option key={w.id} value={w.id}>{w.code} - {w.name}</option>))}
           </select>
-          <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="px-3 py-2 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-white">
+          <select value={typeFilter} onChange={(e) => { setTypeFilter(e.target.value); setPage(1) }} className="px-3 py-2 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-white">
             {TRANSACTION_TYPES.map((t) => (<option key={t.value} value={t.value}>{t.label}</option>))}
           </select>
         </div>
@@ -123,7 +122,7 @@ export default function InventoryTransactions() {
                     </td>
                   </tr>
                 ) : (
-                  filteredItems.map((item: any) => (
+                  filteredItems.map((item: InventoryTransactionDto) => (
                     <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
                       <td className="px-6 py-4.5 text-slate-500">{new Date(item.transactionDate).toLocaleDateString()}</td>
                       <td className="px-6 py-4.5">

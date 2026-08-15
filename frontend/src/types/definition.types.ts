@@ -1,4 +1,4 @@
-export type DefinitionTab = "main-categories" | "sub-categories" | "brands" | "warehouses" | "product-groups" | "transporters" | "product-types" | "units" | "vendors"
+export type DefinitionTab = "main-categories" | "sub-categories" | "brands" | "warehouses" | "product-groups" | "transporters" | "product-types" | "units" | "vendors" | "customers"
 
 export const DEFINITION_TABS: { key: DefinitionTab; label: string }[] = [
   { key: "main-categories", label: "Main Category" },
@@ -10,6 +10,7 @@ export const DEFINITION_TABS: { key: DefinitionTab; label: string }[] = [
   { key: "product-types", label: "Product Types" },
   { key: "units", label: "Units" },
   { key: "vendors", label: "Vendor" },
+  { key: "customers", label: "Customer" },
 ]
 
 export interface MainCategoryDto {
@@ -118,7 +119,28 @@ export interface VendorDto {
   updatedBy: string | null
 }
 
-export type DefinitionDto = MainCategoryDto | SubCategoryDto | BrandDto | WarehouseDto | ProductGroupDto | TransporterDto | ProductTypeDto | UnitDto | VendorDto
+export interface CustomerDto {
+  id: string
+  customerCode: string
+  companyName: string
+  contactPerson: string | null
+  email: string | null
+  countryId: string | null
+  cityId: string | null
+  postalCode: string | null
+  address: string | null
+  area: string | null
+  cnic: string | null
+  ntn: string | null
+  strn: string | null
+  status: "Active" | "Inactive"
+  createdAt: string
+  createdBy: string
+  updatedAt: string | null
+  updatedBy: string | null
+}
+
+export type DefinitionDto = MainCategoryDto | SubCategoryDto | BrandDto | WarehouseDto | ProductGroupDto | TransporterDto | ProductTypeDto | UnitDto | VendorDto | CustomerDto
 
 export interface CreateMainCategoryRequest {
   name: string
@@ -233,12 +255,33 @@ export interface CreateVendorRequest {
 
 export type UpdateVendorRequest = CreateVendorRequest
 
+export interface CreateCustomerRequest {
+  companyName: string
+  contactPerson?: string
+  email?: string
+  countryId?: string
+  cityId?: string
+  postalCode?: string
+  address?: string
+  area?: string
+  cnic?: string
+  ntn?: string
+  strn?: string
+  status: "Active" | "Inactive"
+}
+
+export type UpdateCustomerRequest = CreateCustomerRequest
+
 export interface NextCodeResponse {
   code: string
 }
 
 export interface NextVendorCodeResponse {
   vendorCode: string
+}
+
+export interface NextCustomerCodeResponse {
+  customerCode: string
 }
 
 export interface UpdateStatusRequest {

@@ -47,8 +47,6 @@ export default function MainCategoriesTab() {
   const [editingItem, setEditingItem] = useState<MainCategoryDto | null>(null)
 
   useEffect(() => { const t = setTimeout(() => setDebouncedSearch(searchQuery), 300); return () => clearTimeout(t) }, [searchQuery])
-  useEffect(() => { setPage(1) }, [debouncedSearch, statusFilter])
-
   const { data: pagedData, isLoading } = useDefinitionList("main-categories", { page, pageSize: PAGE_SIZE, search: debouncedSearch || undefined, status: statusFilter || undefined })
   const { data: nextCodeData, refetch: refetchNextCode } = useNextMainCategoryCode()
   const createMutation = useCreateDefinition("main-categories")
@@ -69,9 +67,9 @@ export default function MainCategoriesTab() {
         <div className="flex items-center gap-3">
           <div className="relative w-72">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"><Search className="h-4 w-4 text-slate-400" /></span>
-            <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search main categories..." className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+            <input type="text" value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); setPage(1) }} placeholder="Search main categories..." className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
           </div>
-          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="px-3 py-2 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-white">
+          <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1) }} className="px-3 py-2 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-white">
             <option value="">All Status</option><option value="Active">Active</option><option value="Inactive">Inactive</option>
           </select>
         </div>

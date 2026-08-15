@@ -10,6 +10,7 @@ import {
   useDefinitionList,
 } from "@/hooks"
 import type { ProductDto } from "@/types/product.types"
+import type { ProductTypeDto, MainCategoryDto, SubCategoryDto, BrandDto, ProductGroupDto, UnitDto } from "@/types/definition.types"
 import { ProductDialog } from "@/features/products/components/ProductDialog"
 import { ProductDeleteConfirm } from "@/features/products/components/ProductDeleteConfirm"
 import type { ProductFormValues } from "@/features/products/components/ProductForm"
@@ -38,10 +39,6 @@ export default function Products() {
     const timer = setTimeout(() => setDebouncedSearch(searchQuery), 300)
     return () => clearTimeout(timer)
   }, [searchQuery])
-
-  useEffect(() => {
-    setPage(1)
-  }, [debouncedSearch, filters])
 
   const queryFilters = {
     page,
@@ -76,14 +73,19 @@ export default function Products() {
   const totalPages = pagedData?.totalPages ?? 0
   const currentPage = pagedData?.page ?? 1
 
-  const ptOptions = (productTypes?.items ?? []).map((pt: any) => ({ id: pt.id, code: pt.code, name: pt.name }))
-  const catOptions = (categories?.items ?? []).map((c: any) => ({ id: c.id, code: c.code, name: c.name }))
-  const scOptions = (subCategories?.items ?? []).map((sc: any) => ({ id: sc.id, code: sc.code, name: sc.name, mainCategoryId: sc.mainCategoryId }))
-  const bOptions = (brands?.items ?? []).map((b: any) => ({ id: b.id, code: b.code, name: b.name }))
-  const pgOptions = (productGroups?.items ?? []).map((pg: any) => ({ id: pg.id, code: pg.code, name: pg.name }))
-  const uOptions = (units?.items ?? []).map((u: any) => ({ id: u.id, code: u.code, name: u.name }))
+  const ptOptions = (productTypes?.items ?? []).map((pt: ProductTypeDto) => ({ id: pt.id, code: pt.code, name: pt.name }))
+  const catOptions = (categories?.items ?? []).map((c: MainCategoryDto) => ({ id: c.id, code: c.code, name: c.name }))
+  const scOptions = (subCategories?.items ?? []).map((sc: SubCategoryDto) => ({ id: sc.id, code: sc.code, name: sc.name, mainCategoryId: sc.mainCategoryId }))
+  const bOptions = (brands?.items ?? []).map((b: BrandDto) => ({ id: b.id, code: b.code, name: b.name }))
+  const pgOptions = (productGroups?.items ?? []).map((pg: ProductGroupDto) => ({ id: pg.id, code: pg.code, name: pg.name }))
+  const uOptions = (units?.items ?? []).map((u: UnitDto) => ({ id: u.id, code: u.code, name: u.name }))
 
   const isSubmitting = createMutation.isPending || updateMutation.isPending
+
+  const updateFilters = (patch: Partial<typeof filters>) => {
+    setFilters((prev) => ({ ...prev, ...patch }))
+    setPage(1)
+  }
 
   const handleOpenCreate = () => {
     setSelectedProductId(null)
@@ -167,25 +169,25 @@ export default function Products() {
           <div className="flex items-center gap-3 flex-wrap">
             <div className="relative w-60">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"><Search className="h-4 w-4 text-slate-400" /></span>
-              <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search by code or name..." className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+              <input type="text" value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); setPage(1) }} placeholder="Search by code or name..." className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
             </div>
-            <select value={filters.productTypeId} onChange={(e) => setFilters((f) => ({ ...f, productTypeId: e.target.value }))} className="px-3 py-2 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-white">
+            <select value={filters.productTypeId} onChange={(e) => updateFilters({ productTypeId: e.target.value })} className="px-3 py-2 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-white">
               <option value="">All Product Types</option>
               {ptOptions.map((pt) => (<option key={pt.id} value={pt.id}>{pt.code} - {pt.name}</option>))}
             </select>
-            <select value={filters.categoryId} onChange={(e) => setFilters((f) => ({ ...f, categoryId: e.target.value }))} className="px-3 py-2 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-white">
+            <select value={filters.categoryId} onChange={(e) => updateFilters({ categoryId: e.target.value })} className="px-3 py-2 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-white">
               <option value="">All Categories</option>
               {catOptions.map((c) => (<option key={c.id} value={c.id}>{c.code} - {c.name}</option>))}
             </select>
-            <select value={filters.brandId} onChange={(e) => setFilters((f) => ({ ...f, brandId: e.target.value }))} className="px-3 py-2 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-white">
+            <select value={filters.brandId} onChange={(e) => updateFilters({ brandId: e.target.value })} className="px-3 py-2 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-white">
               <option value="">All Brands</option>
               {bOptions.map((b) => (<option key={b.id} value={b.id}>{b.code} - {b.name}</option>))}
             </select>
-            <select value={filters.status} onChange={(e) => setFilters((f) => ({ ...f, status: e.target.value }))} className="px-3 py-2 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-white">
+            <select value={filters.status} onChange={(e) => updateFilters({ status: e.target.value })} className="px-3 py-2 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-white">
               {STATUS_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
             </select>
             {(filters.productTypeId || filters.categoryId || filters.brandId || filters.status) && (
-              <button onClick={() => setFilters({ productTypeId: "", categoryId: "", brandId: "", status: "" })} className="text-xs text-blue-600 hover:underline font-semibold cursor-pointer">Clear Filters</button>
+              <button onClick={() => updateFilters({ productTypeId: "", categoryId: "", brandId: "", status: "" })} className="text-xs text-blue-600 hover:underline font-semibold cursor-pointer">Clear Filters</button>
             )}
           </div>
         </div>

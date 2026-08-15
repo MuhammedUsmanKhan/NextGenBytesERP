@@ -24,6 +24,10 @@ public static class AuthSeedData
     public static readonly Guid PermVendorCreate = Guid.Parse("A1B2C3D4-E5F6-7890-0000-000000000002");
     public static readonly Guid PermVendorUpdate = Guid.Parse("A1B2C3D4-E5F6-7890-0000-000000000003");
     public static readonly Guid PermVendorDelete = Guid.Parse("A1B2C3D4-E5F6-7890-0000-000000000004");
+    public static readonly Guid PermCustomerView = Guid.Parse("A1B2C3D4-E5F6-7890-0000-000000000005");
+    public static readonly Guid PermCustomerCreate = Guid.Parse("A1B2C3D4-E5F6-7890-0000-000000000006");
+    public static readonly Guid PermCustomerUpdate = Guid.Parse("A1B2C3D4-E5F6-7890-0000-000000000007");
+    public static readonly Guid PermCustomerDelete = Guid.Parse("A1B2C3D4-E5F6-7890-0000-000000000008");
 
     public static IEnumerable<Permission> DefaultPermissions =>
     [
@@ -40,6 +44,10 @@ public static class AuthSeedData
         new(PermVendorCreate, "Vendor.Create", "Create vendors"),
         new(PermVendorUpdate, "Vendor.Update", "Update vendors"),
         new(PermVendorDelete, "Vendor.Delete", "Delete vendors"),
+        new(PermCustomerView, "Customer.View", "View customers"),
+        new(PermCustomerCreate, "Customer.Create", "Create customers"),
+        new(PermCustomerUpdate, "Customer.Update", "Update customers"),
+        new(PermCustomerDelete, "Customer.Delete", "Delete customers"),
     ];
 
     public static IEnumerable<ApplicationRole> DefaultRoles =>
@@ -65,6 +73,10 @@ public static class AuthSeedData
         new(AdminRoleId, PermVendorCreate),
         new(AdminRoleId, PermVendorUpdate),
         new(AdminRoleId, PermVendorDelete),
+        new(AdminRoleId, PermCustomerView),
+        new(AdminRoleId, PermCustomerCreate),
+        new(AdminRoleId, PermCustomerUpdate),
+        new(AdminRoleId, PermCustomerDelete),
 
         // Editor — view + edit
         new(EditorRoleId, PermOrdersView),
@@ -76,12 +88,16 @@ public static class AuthSeedData
         new(EditorRoleId, PermVendorView),
         new(EditorRoleId, PermVendorCreate),
         new(EditorRoleId, PermVendorUpdate),
+        new(EditorRoleId, PermCustomerView),
+        new(EditorRoleId, PermCustomerCreate),
+        new(EditorRoleId, PermCustomerUpdate),
 
         // Viewer — view only
         new(ViewerRoleId, PermOrdersView),
         new(ViewerRoleId, PermUsersView),
         new(ViewerRoleId, PermDefinitionsView),
         new(ViewerRoleId, PermVendorView),
+        new(ViewerRoleId, PermCustomerView),
     ];
 
     public static void Seed(ModelBuilder builder)

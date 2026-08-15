@@ -10,6 +10,7 @@ import type {
   ProductTypeDto,
   UnitDto,
   VendorDto,
+  CustomerDto,
   MainCategoryLookupDto,
   CreateMainCategoryRequest,
   CreateSubCategoryRequest,
@@ -20,6 +21,7 @@ import type {
   CreateProductTypeRequest,
   CreateUnitRequest,
   CreateVendorRequest,
+  CreateCustomerRequest,
   UpdateMainCategoryRequest,
   UpdateSubCategoryRequest,
   UpdateBrandRequest,
@@ -29,9 +31,11 @@ import type {
   UpdateProductTypeRequest,
   UpdateUnitRequest,
   UpdateVendorRequest,
+  UpdateCustomerRequest,
   UpdateStatusRequest,
   NextCodeResponse,
   NextVendorCodeResponse,
+  NextCustomerCodeResponse,
 } from "@/types/definition.types"
 
 const BASE = "/api/v1/definitions"
@@ -298,4 +302,33 @@ export async function updateVendorStatus(id: string, data: UpdateStatusRequest) 
 
 export async function deleteVendor(id: string) {
   await api.delete(`${BASE}/vendors/${id}`)
+}
+
+export async function getCustomers(params?: DefinitionQueryParams) {
+  const response = await api.get<ApiResponse<PagedResponse<CustomerDto>>>(`${BASE}/customers`, { params })
+  return response.data.data
+}
+
+export async function getNextCustomerCode() {
+  const response = await api.get<ApiResponse<NextCustomerCodeResponse>>(`${BASE}/customers/next-code`)
+  return response.data.data
+}
+
+export async function createCustomer(data: CreateCustomerRequest) {
+  const response = await api.post<ApiResponse<CustomerDto>>(`${BASE}/customers`, data)
+  return response.data.data
+}
+
+export async function updateCustomer(id: string, data: UpdateCustomerRequest) {
+  const response = await api.put<ApiResponse<CustomerDto>>(`${BASE}/customers/${id}`, data)
+  return response.data.data
+}
+
+export async function updateCustomerStatus(id: string, data: UpdateStatusRequest) {
+  const response = await api.patch<ApiResponse<CustomerDto>>(`${BASE}/customers/${id}/status`, data)
+  return response.data.data
+}
+
+export async function deleteCustomer(id: string) {
+  await api.delete(`${BASE}/customers/${id}`)
 }

@@ -2,6 +2,8 @@ import { useState, useEffect } from "react"
 import { Search, Loader2 } from "lucide-react"
 import { useGetInventoryList } from "@/hooks"
 import { useDefinitionList } from "@/hooks"
+import type { InventoryDto } from "@/types/inventory.types"
+import type { WarehouseDto } from "@/types/definition.types"
 
 const PAGE_SIZE = 20
 
@@ -17,10 +19,6 @@ export default function InventoryPage() {
     return () => clearTimeout(timer)
   }, [searchQuery])
 
-  useEffect(() => {
-    setPage(1)
-  }, [debouncedSearch, warehouseFilter, statusFilter])
-
   const { data: pagedData, isLoading } = useGetInventoryList({
     page,
     pageSize: PAGE_SIZE,
@@ -33,15 +31,15 @@ export default function InventoryPage() {
   const totalPages = pagedData?.totalPages ?? 0
   const currentPage = pagedData?.page ?? 1
 
-  const warehouseOptions = (warehousesData?.items ?? []).map((w: any) => ({ id: w.id, code: w.code, name: w.name }))
+  const warehouseOptions = (warehousesData?.items ?? []).map((w: WarehouseDto) => ({ id: w.id, code: w.code, name: w.name }))
 
-  const getStockStatus = (item: any) => {
+  const getStockStatus = (item: InventoryDto) => {
     if (item.availableQuantity <= 0) return { label: "Out of Stock", class: "bg-rose-50 text-rose-700 border-rose-100" }
     if (item.reorderLevel != null && item.availableQuantity <= item.reorderLevel) return { label: "Low Stock", class: "bg-amber-50 text-amber-700 border-amber-100" }
     return { label: "In Stock", class: "bg-emerald-50 text-emerald-700 border-emerald-100" }
   }
 
-  const filteredItems = items.filter((item: any) => {
+  const filteredItems = items.filter((item: InventoryDto) => {
     if (debouncedSearch) {
       const q = debouncedSearch.toLowerCase()
       if (!item.productCode.toLowerCase().includes(q) && !item.productName.toLowerCase().includes(q)) return false
@@ -70,16 +68,16 @@ export default function InventoryPage() {
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => { setSearchQuery(e.target.value); setPage(1) }}
               placeholder="Search by code or name..."
               className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
             />
           </div>
-          <select value={warehouseFilter} onChange={(e) => setWarehouseFilter(e.target.value)} className="px-3 py-2 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-white">
+          <select value={warehouseFilter} onChange={(e) => { setWarehouseFilter(e.target.value); setPage(1) }} className="px-3 py-2 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-white">
             <option value="">All Warehouses</option>
-            {warehouseOptions.map((w: any) => (<option key={w.id} value={w.id}>{w.code} - {w.name}</option>))}
+            {warehouseOptions.map((w) => (<option key={w.id} value={w.id}>{w.code} - {w.name}</option>))}
           </select>
-          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="px-3 py-2 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-white">
+          <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1) }} className="px-3 py-2 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-white">
             <option value="">All Status</option>
             <option value="in">In Stock</option>
             <option value="low">Low Stock</option>
@@ -114,7 +112,7 @@ export default function InventoryPage() {
                     </td>
                   </tr>
                 ) : (
-                  filteredItems.map((item: any) => {
+                  filteredItems.map((item: InventoryDto) => {
                     const status = getStockStatus(item)
                     return (
                       <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">

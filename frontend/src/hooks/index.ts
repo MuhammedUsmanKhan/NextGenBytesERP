@@ -18,6 +18,7 @@ export {
   useNextTransporterCode,
   useNextProductGroupCode,
   useNextVendorCode,
+  useNextCustomerCode,
 } from "./useDefinitions"
 export {
   useGetProducts,

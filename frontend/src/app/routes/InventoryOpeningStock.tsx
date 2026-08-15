@@ -4,6 +4,9 @@ import { useGetProducts } from "@/hooks"
 import { useDefinitionList } from "@/hooks"
 import { useGetTransactions, useCreateOpeningStock } from "@/hooks"
 import { OpeningStockDialog } from "@/features/inventory/components/OpeningStockDialog"
+import type { ProductDto } from "@/types/product.types"
+import type { WarehouseDto } from "@/types/definition.types"
+import type { InventoryTransactionDto } from "@/types/inventory.types"
 
 const PAGE_SIZE = 20
 
@@ -17,10 +20,6 @@ export default function InventoryOpeningStock() {
     const timer = setTimeout(() => setDebouncedSearch(searchQuery), 300)
     return () => clearTimeout(timer)
   }, [searchQuery])
-
-  useEffect(() => {
-    setPage(1)
-  }, [debouncedSearch])
 
   const { data: pagedData, isLoading } = useGetTransactions({
     page,
@@ -36,8 +35,8 @@ export default function InventoryOpeningStock() {
   const totalPages = pagedData?.totalPages ?? 0
   const currentPage = pagedData?.page ?? 1
 
-  const products = (productsData?.items ?? []).map((p: any) => ({ id: p.id, productCode: p.productCode, productName: p.productName }))
-  const warehouses = (warehousesData?.items ?? []).map((w: any) => ({ id: w.id, code: w.code, name: w.name }))
+  const products = (productsData?.items ?? []).map((p: ProductDto) => ({ id: p.id, productCode: p.productCode, productName: p.productName }))
+  const warehouses = (warehousesData?.items ?? []).map((w: WarehouseDto) => ({ id: w.id, code: w.code, name: w.name }))
 
   const handleSubmit = (data: { productId: string; warehouseId: string; quantity: number; averageCost: number; transactionDate: string; remarks?: string | null }) => {
     createMutation.mutate(
@@ -79,7 +78,7 @@ export default function InventoryOpeningStock() {
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => { setSearchQuery(e.target.value); setPage(1) }}
               placeholder="Search by product or warehouse..."
               className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
             />
@@ -110,7 +109,7 @@ export default function InventoryOpeningStock() {
                     </td>
                   </tr>
                 ) : (
-                  items.map((item: any) => (
+                  items.map((item: InventoryTransactionDto) => (
                     <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
                       <td className="px-6 py-4.5">
                         <span className="font-mono text-xs text-slate-500">{item.productCode}</span>

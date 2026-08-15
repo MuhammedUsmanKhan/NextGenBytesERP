@@ -38,6 +38,7 @@ public sealed class AppDbContext
     public DbSet<Transporter> Transporters => Set<Transporter>();
     public DbSet<ProductType> ProductTypes => Set<ProductType>();
     public DbSet<Vendor> Vendors => Set<Vendor>();
+    public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<Sequence> Sequences => Set<Sequence>();
     public DbSet<Unit> Units => Set<Unit>();
 

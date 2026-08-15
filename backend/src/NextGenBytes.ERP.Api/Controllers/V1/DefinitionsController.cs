@@ -21,6 +21,7 @@ public sealed class DefinitionsController : ControllerBase
     private readonly IProductTypeService _productTypeService;
     private readonly IUnitService _unitService;
     private readonly IVendorService _vendorService;
+    private readonly ICustomerService _customerService;
 
     public DefinitionsController(
         IMainCategoryService mainCategoryService,
@@ -31,7 +32,8 @@ public sealed class DefinitionsController : ControllerBase
         ITransporterService transporterService,
         IProductTypeService productTypeService,
         IUnitService unitService,
-        IVendorService vendorService)
+        IVendorService vendorService,
+        ICustomerService customerService)
     {
         _mainCategoryService = mainCategoryService;
         _subCategoryService = subCategoryService;
@@ -42,6 +44,7 @@ public sealed class DefinitionsController : ControllerBase
         _productTypeService = productTypeService;
         _unitService = unitService;
         _vendorService = vendorService;
+        _customerService = customerService;
     }
 
     private string CurrentUser => User.Identity?.Name ?? "system";
@@ -913,6 +916,104 @@ public sealed class DefinitionsController : ControllerBase
     public async Task<IActionResult> DeleteVendor(Guid id)
     {
         var result = await _vendorService.DeleteAsync(id, CurrentUser);
+        if (!result.Success)
+            return NotFound(result);
+        return Ok(result);
+    }
+
+    // ── Customers ────────────────────────────────────────────
+
+    [HttpGet("customers")]
+    [RequirePermission("Definitions.View")]
+    [EndpointSummary("List customers (paginated)")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetCustomers(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string? search = null,
+        [FromQuery] string? status = null)
+    {
+        var result = await _customerService.GetAllAsync(page, pageSize, search, status);
+        return Ok(result);
+    }
+
+    [HttpGet("customers/{id:guid}")]
+    [RequirePermission("Definitions.View")]
+    [EndpointSummary("Get customer by ID")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetCustomer(Guid id)
+    {
+        var result = await _customerService.GetByIdAsync(id);
+        if (!result.Success)
+            return NotFound(result);
+        return Ok(result);
+    }
+
+    [HttpGet("customers/next-code")]
+    [RequirePermission("Definitions.View")]
+    [EndpointSummary("Preview the next auto-generated customer code")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetNextCustomerCode()
+    {
+        var result = await _customerService.GetNextCustomerCodeAsync();
+        return Ok(result);
+    }
+
+    [HttpPost("customers")]
+    [RequirePermission("Definitions.Edit")]
+    [EndpointSummary("Create a customer (CustomerCode auto-generated)")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> CreateCustomer([FromBody] CreateCustomerRequest request)
+    {
+        var result = await _customerService.CreateAsync(request, CurrentUser);
+        return Ok(result);
+    }
+
+    [HttpPut("customers/{id:guid}")]
+    [RequirePermission("Definitions.Edit")]
+    [EndpointSummary("Update a customer")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateCustomer(Guid id, [FromBody] UpdateCustomerRequest request)
+    {
+        var result = await _customerService.UpdateAsync(id, request, CurrentUser);
+        if (!result.Success)
+            return NotFound(result);
+        return Ok(result);
+    }
+
+    [HttpPatch("customers/{id:guid}/status")]
+    [RequirePermission("Definitions.Edit")]
+    [EndpointSummary("Update customer status")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateCustomerStatus(Guid id, [FromBody] UpdateStatusRequest request)
+    {
+        var result = await _customerService.UpdateStatusAsync(id, request, CurrentUser);
+        if (!result.Success)
+            return NotFound(result);
+        return Ok(result);
+    }
+
+    [HttpDelete("customers/{id:guid}")]
+    [RequirePermission("Definitions.Edit")]
+    [EndpointSummary("Soft delete a customer")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteCustomer(Guid id)
+    {
+        var result = await _customerService.DeleteAsync(id, CurrentUser);
         if (!result.Success)
             return NotFound(result);
         return Ok(result);
