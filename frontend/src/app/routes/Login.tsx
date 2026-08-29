@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form"
+import { useForm, type Resolver } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Loader2 } from "lucide-react"
@@ -21,7 +21,7 @@ export default function Login() {
     handleSubmit,
     formState: { errors },
   } = useForm<LoginForm>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(loginSchema) as Resolver<LoginForm>,
   })
 
   function onSubmit(data: LoginForm) {

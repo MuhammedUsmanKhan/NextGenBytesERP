@@ -19,6 +19,7 @@ export {
   useNextProductGroupCode,
   useNextVendorCode,
   useNextCustomerCode,
+  useNextDepartmentCode,
 } from "./useDefinitions"
 export {
   useGetProducts,
@@ -28,3 +29,11 @@ export {
   useDeleteProduct,
   useGetNextProductCode,
 } from "./useProducts"
+export {
+  useGetSalesOrders,
+  useGetSalesOrderById,
+  useCreateSalesOrder,
+  useUpdateSalesOrder,
+  useCloseSalesOrder,
+  useDeleteSalesOrder,
+} from "./useSalesOrders"

@@ -22,6 +22,7 @@ public sealed class DefinitionsController : ControllerBase
     private readonly IUnitService _unitService;
     private readonly IVendorService _vendorService;
     private readonly ICustomerService _customerService;
+    private readonly IDepartmentService _departmentService;
 
     public DefinitionsController(
         IMainCategoryService mainCategoryService,
@@ -33,7 +34,8 @@ public sealed class DefinitionsController : ControllerBase
         IProductTypeService productTypeService,
         IUnitService unitService,
         IVendorService vendorService,
-        ICustomerService customerService)
+        ICustomerService customerService,
+        IDepartmentService departmentService)
     {
         _mainCategoryService = mainCategoryService;
         _subCategoryService = subCategoryService;
@@ -45,6 +47,7 @@ public sealed class DefinitionsController : ControllerBase
         _unitService = unitService;
         _vendorService = vendorService;
         _customerService = customerService;
+        _departmentService = departmentService;
     }
 
     private string CurrentUser => User.Identity?.Name ?? "system";
@@ -1014,6 +1017,104 @@ public sealed class DefinitionsController : ControllerBase
     public async Task<IActionResult> DeleteCustomer(Guid id)
     {
         var result = await _customerService.DeleteAsync(id, CurrentUser);
+        if (!result.Success)
+            return NotFound(result);
+        return Ok(result);
+    }
+
+    // ── Departments ──────────────────────────────────────────
+
+    [HttpGet("departments")]
+    [RequirePermission("Definitions.View")]
+    [EndpointSummary("List departments (paginated)")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetDepartments(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string? search = null,
+        [FromQuery] string? status = null)
+    {
+        var result = await _departmentService.GetAllAsync(page, pageSize, search, status);
+        return Ok(result);
+    }
+
+    [HttpGet("departments/{id:guid}")]
+    [RequirePermission("Definitions.View")]
+    [EndpointSummary("Get department by ID")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetDepartment(Guid id)
+    {
+        var result = await _departmentService.GetByIdAsync(id);
+        if (!result.Success)
+            return NotFound(result);
+        return Ok(result);
+    }
+
+    [HttpGet("departments/next-code")]
+    [RequirePermission("Definitions.View")]
+    [EndpointSummary("Preview the next auto-generated department code")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetNextDepartmentCode()
+    {
+        var result = await _departmentService.GetNextCodeAsync();
+        return Ok(result);
+    }
+
+    [HttpPost("departments")]
+    [RequirePermission("Definitions.Edit")]
+    [EndpointSummary("Create a department")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> CreateDepartment([FromBody] CreateDepartmentRequest request)
+    {
+        var result = await _departmentService.CreateAsync(request, CurrentUser);
+        return Ok(result);
+    }
+
+    [HttpPut("departments/{id:guid}")]
+    [RequirePermission("Definitions.Edit")]
+    [EndpointSummary("Update a department")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateDepartment(Guid id, [FromBody] UpdateDepartmentRequest request)
+    {
+        var result = await _departmentService.UpdateAsync(id, request, CurrentUser);
+        if (!result.Success)
+            return NotFound(result);
+        return Ok(result);
+    }
+
+    [HttpPatch("departments/{id:guid}/status")]
+    [RequirePermission("Definitions.Edit")]
+    [EndpointSummary("Update department status")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateDepartmentStatus(Guid id, [FromBody] UpdateStatusRequest request)
+    {
+        var result = await _departmentService.UpdateStatusAsync(id, request, CurrentUser);
+        if (!result.Success)
+            return NotFound(result);
+        return Ok(result);
+    }
+
+    [HttpDelete("departments/{id:guid}")]
+    [RequirePermission("Definitions.Edit")]
+    [EndpointSummary("Soft delete a department")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteDepartment(Guid id)
+    {
+        var result = await _departmentService.DeleteAsync(id, CurrentUser);
         if (!result.Success)
             return NotFound(result);
         return Ok(result);

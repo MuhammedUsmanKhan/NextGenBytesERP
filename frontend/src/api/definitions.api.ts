@@ -36,6 +36,9 @@ import type {
   NextCodeResponse,
   NextVendorCodeResponse,
   NextCustomerCodeResponse,
+  DepartmentDto,
+  CreateDepartmentRequest,
+  UpdateDepartmentRequest,
 } from "@/types/definition.types"
 
 const BASE = "/api/v1/definitions"
@@ -331,4 +334,33 @@ export async function updateCustomerStatus(id: string, data: UpdateStatusRequest
 
 export async function deleteCustomer(id: string) {
   await api.delete(`${BASE}/customers/${id}`)
+}
+
+export async function getDepartments(params?: DefinitionQueryParams) {
+  const response = await api.get<ApiResponse<PagedResponse<DepartmentDto>>>(`${BASE}/departments`, { params })
+  return response.data.data
+}
+
+export async function getNextDepartmentCode() {
+  const response = await api.get<ApiResponse<NextCodeResponse>>(`${BASE}/departments/next-code`)
+  return response.data.data
+}
+
+export async function createDepartment(data: CreateDepartmentRequest) {
+  const response = await api.post<ApiResponse<DepartmentDto>>(`${BASE}/departments`, data)
+  return response.data.data
+}
+
+export async function updateDepartment(id: string, data: UpdateDepartmentRequest) {
+  const response = await api.put<ApiResponse<DepartmentDto>>(`${BASE}/departments/${id}`, data)
+  return response.data.data
+}
+
+export async function updateDepartmentStatus(id: string, data: UpdateStatusRequest) {
+  const response = await api.patch<ApiResponse<DepartmentDto>>(`${BASE}/departments/${id}/status`, data)
+  return response.data.data
+}
+
+export async function deleteDepartment(id: string) {
+  await api.delete(`${BASE}/departments/${id}`)
 }

@@ -25,7 +25,13 @@ import {
 
 const navigation = [
   { name: "Dashboard", icon: LayoutDashboard, path: "/" },
-  { name: "Sales", icon: ShoppingBag, path: "/sales" },
+  {
+    name: "Sales",
+    icon: ShoppingBag,
+    children: [
+      { name: "Sales Orders", icon: ShoppingBag, path: "/sales" },
+    ],
+  },
   { name: "Purchases", icon: Briefcase, path: "/purchases" },
   { name: "Definitions", icon: Sliders, path: "/definitions" },
   { name: "Products", icon: Package, path: "/products" },

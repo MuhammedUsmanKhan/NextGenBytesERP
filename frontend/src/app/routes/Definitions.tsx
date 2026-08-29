@@ -11,6 +11,7 @@ import ProductTypesTab from "@/features/definitions/components/ProductTypesTab"
 import UnitsTab from "@/features/definitions/components/UnitsTab"
 import VendorsTab from "@/features/definitions/components/VendorsTab"
 import CustomersTab from "@/features/definitions/components/CustomersTab"
+import DepartmentsTab from "@/features/definitions/components/DepartmentsTab"
 
 export default function Definitions() {
   const [activeSubTab, setActiveSubTab] = useState<DefinitionTab>("main-categories")
@@ -56,6 +57,7 @@ export default function Definitions() {
       {activeSubTab === "units" && <UnitsTab />}
       {activeSubTab === "vendors" && <VendorsTab />}
       {activeSubTab === "customers" && <CustomersTab />}
+      {activeSubTab === "departments" && <DepartmentsTab />}
     </div>
   )
 }

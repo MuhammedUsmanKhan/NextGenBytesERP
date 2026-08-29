@@ -13,6 +13,8 @@ import Login from "@/app/routes/Login"
 import Users from "@/app/routes/Users"
 import Roles from "@/app/routes/Roles"
 import Sales from "@/app/routes/Sales"
+import SalesOrderForm from "@/app/routes/SalesOrderForm"
+import SalesOrderView from "@/app/routes/SalesOrderView"
 import Purchases from "@/app/routes/Purchases"
 import Reports from "@/app/routes/Reports"
 import Settings from "@/app/routes/Settings"
@@ -55,6 +57,9 @@ export default function App() {
                 <Route path="users" element={<Users />} />
                 <Route path="roles" element={<Roles />} />
                 <Route path="sales" element={<Sales />} />
+                <Route path="sales/sales-orders/new" element={<SalesOrderForm />} />
+                <Route path="sales/sales-orders/:id/edit" element={<SalesOrderForm />} />
+                <Route path="sales/sales-orders/:id" element={<SalesOrderView />} />
                 <Route path="purchases" element={<Purchases />} />
                 <Route path="reports" element={<Reports />} />
                 <Route path="settings" element={<Settings />} />

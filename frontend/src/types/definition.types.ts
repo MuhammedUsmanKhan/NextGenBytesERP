@@ -1,4 +1,4 @@
-export type DefinitionTab = "main-categories" | "sub-categories" | "brands" | "warehouses" | "product-groups" | "transporters" | "product-types" | "units" | "vendors" | "customers"
+export type DefinitionTab = "main-categories" | "sub-categories" | "brands" | "warehouses" | "product-groups" | "transporters" | "product-types" | "units" | "vendors" | "customers" | "departments"
 
 export const DEFINITION_TABS: { key: DefinitionTab; label: string }[] = [
   { key: "main-categories", label: "Main Category" },
@@ -11,6 +11,7 @@ export const DEFINITION_TABS: { key: DefinitionTab; label: string }[] = [
   { key: "units", label: "Units" },
   { key: "vendors", label: "Vendor" },
   { key: "customers", label: "Customer" },
+  { key: "departments", label: "Department" },
 ]
 
 export interface MainCategoryDto {
@@ -140,7 +141,16 @@ export interface CustomerDto {
   updatedBy: string | null
 }
 
-export type DefinitionDto = MainCategoryDto | SubCategoryDto | BrandDto | WarehouseDto | ProductGroupDto | TransporterDto | ProductTypeDto | UnitDto | VendorDto | CustomerDto
+export interface DepartmentDto {
+  id: string
+  code: string
+  name: string
+  status: "Active" | "Inactive"
+  createdAt: string
+  updatedAt: string | null
+}
+
+export type DefinitionDto = MainCategoryDto | SubCategoryDto | BrandDto | WarehouseDto | ProductGroupDto | TransporterDto | ProductTypeDto | UnitDto | VendorDto | CustomerDto | DepartmentDto
 
 export interface CreateMainCategoryRequest {
   name: string
@@ -271,6 +281,13 @@ export interface CreateCustomerRequest {
 }
 
 export type UpdateCustomerRequest = CreateCustomerRequest
+
+export interface CreateDepartmentRequest {
+  name: string
+  status: "Active" | "Inactive"
+}
+
+export type UpdateDepartmentRequest = CreateDepartmentRequest
 
 export interface NextCodeResponse {
   code: string

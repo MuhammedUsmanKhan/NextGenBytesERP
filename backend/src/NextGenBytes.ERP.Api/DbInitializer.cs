@@ -46,7 +46,9 @@ public static class DbInitializer
                 new Sequence { Id = Guid.Parse("d4e5f6a7-0004-0000-0000-000000000009"), EntityName = "Warehouse", Scope = "DEFAULT", LastNumber = 0, UpdatedAt = DateTime.UtcNow },
                 new Sequence { Id = Guid.Parse("d4e5f6a7-0004-0000-0000-000000000010"), EntityName = "Transporter", Scope = "DEFAULT", LastNumber = 0, UpdatedAt = DateTime.UtcNow },
                 new Sequence { Id = Guid.Parse("d4e5f6a7-0004-0000-0000-000000000011"), EntityName = "ProductGroup", Scope = "DEFAULT", LastNumber = 0, UpdatedAt = DateTime.UtcNow },
-                new Sequence { Id = Guid.Parse("d4e5f6a7-0004-0000-0000-000000000012"), EntityName = "Customer", Scope = "DEFAULT", LastNumber = 0, UpdatedAt = DateTime.UtcNow }
+                new Sequence { Id = Guid.Parse("d4e5f6a7-0004-0000-0000-000000000012"), EntityName = "Customer", Scope = "DEFAULT", LastNumber = 0, UpdatedAt = DateTime.UtcNow },
+                new Sequence { Id = Guid.Parse("d4e5f6a7-0004-0000-0000-000000000013"), EntityName = "Department", Scope = "DEFAULT", LastNumber = 0, UpdatedAt = DateTime.UtcNow },
+                new Sequence { Id = Guid.Parse("d4e5f6a7-0004-0000-0000-000000000014"), EntityName = "SalesOrder", Scope = "DEFAULT", LastNumber = 0, UpdatedAt = DateTime.UtcNow }
             );
 
             await context.SaveChangesAsync();

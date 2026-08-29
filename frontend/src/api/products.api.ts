@@ -18,6 +18,7 @@ interface ProductApiRaw {
   productGroupName: string | null
   unitId: string
   unitName: string
+  unitShortName: string
   weight: number | null
   thicknessGSM: number | null
   colorScheme: string | null

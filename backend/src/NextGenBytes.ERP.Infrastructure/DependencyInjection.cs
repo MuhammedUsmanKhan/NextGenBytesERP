@@ -11,8 +11,10 @@ using NextGenBytes.ERP.Application.Common.Interfaces;
 using NextGenBytes.ERP.Application.Definitions.Interfaces;
 using NextGenBytes.ERP.Application.Products.Interfaces;
 using NextGenBytes.ERP.Application.Inventory.Interfaces;
+using NextGenBytes.ERP.Application.SalesOrders.Interfaces;
 using NextGenBytes.ERP.Infrastructure.Definitions.Services;
 using NextGenBytes.ERP.Infrastructure.Inventory.Services;
+using NextGenBytes.ERP.Infrastructure.SalesOrders.Services;
 using NextGenBytes.ERP.Infrastructure.Persistence;
 using NextGenBytes.ERP.Infrastructure.Products.Services;
 using NextGenBytes.ERP.Infrastructure.RoleManagement.Services;
@@ -68,6 +70,8 @@ public static class DependencyInjection
         services.AddScoped<ISequenceService, SequenceService>();
         services.AddScoped<IProductService, ProductService>();
         services.AddScoped<IInventoryService, InventoryService>();
+        services.AddScoped<IDepartmentService, DepartmentService>();
+        services.AddScoped<ISalesOrderService, SalesOrderService>();
 
         return services;
     }

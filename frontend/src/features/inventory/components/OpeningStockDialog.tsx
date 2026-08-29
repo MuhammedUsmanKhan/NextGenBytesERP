@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form"
+import { useForm, type Resolver } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Loader2 } from "lucide-react"
@@ -33,8 +33,8 @@ interface Props {
 }
 
 export function OpeningStockDialog({ open, onClose, products, warehouses, onSubmit, isSubmitting }: Props) {
-  const form = useForm({
-    resolver: zodResolver(schema) as never,
+  const form = useForm<FormValues>({
+    resolver: zodResolver(schema) as Resolver<FormValues>,
     defaultValues,
   })
 

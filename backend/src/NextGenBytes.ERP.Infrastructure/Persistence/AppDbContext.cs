@@ -9,6 +9,7 @@ using NextGenBytes.ERP.Domain.Authentication;
 using NextGenBytes.ERP.Domain.Definitions;
 using NextGenBytes.ERP.Domain.Inventory;
 using NextGenBytes.ERP.Domain.Products;
+using NextGenBytes.ERP.Domain.SalesOrders;
 using NextGenBytes.ERP.Infrastructure.Identity;
 using NextGenBytes.ERP.Infrastructure.Persistence.Seed;
 using InvEntity = NextGenBytes.ERP.Domain.Inventory.Inventory;
@@ -41,8 +42,12 @@ public sealed class AppDbContext
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<Sequence> Sequences => Set<Sequence>();
     public DbSet<Unit> Units => Set<Unit>();
+    public DbSet<Department> Departments => Set<Department>();
 
     public DbSet<Product> Products => Set<Product>();
+
+    public DbSet<SalesOrder> SalesOrders => Set<SalesOrder>();
+    public DbSet<SalesOrderItem> SalesOrderItems => Set<SalesOrderItem>();
 
     public DbSet<OpeningStock> OpeningStocks => Set<OpeningStock>();
     public DbSet<InvEntity> Inventories => Set<InvEntity>();
