@@ -45,6 +45,7 @@ public sealed class SalesOrderItemConfiguration : IEntityTypeConfiguration<Sales
         builder.HasOne(x => x.Product)
             .WithMany()
             .HasForeignKey(x => x.ProductId)
+            .IsRequired(false)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

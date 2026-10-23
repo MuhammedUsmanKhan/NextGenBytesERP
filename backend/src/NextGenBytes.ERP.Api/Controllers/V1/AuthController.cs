@@ -24,12 +24,10 @@ public sealed class AuthController : ControllerBase
     [EndpointSummary("Authenticate user and return JWT access token + refresh token cookie")]
     [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Login(
-        [FromBody] LoginRequest request,
-        [FromHeader(Name = "X-Forwarded-For")] string? forwardedFor,
-        [FromHeader(Name = "User-Agent")] string? userAgent)
+    public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        var ipAddress = forwardedFor ?? HttpContext.Connection.RemoteIpAddress?.ToString();
+        var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+        var userAgent = Request.Headers.UserAgent.ToString();
         var result = await _authService.LoginAsync(request, ipAddress, userAgent);
 
         SetRefreshTokenCookie(result.RefreshToken);
@@ -52,9 +50,7 @@ public sealed class AuthController : ControllerBase
     [EndpointSummary("Refresh JWT access token using httpOnly refresh token cookie")]
     [ProducesResponseType(typeof(RefreshResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Refresh(
-        [FromHeader(Name = "X-Forwarded-For")] string? forwardedFor,
-        [FromHeader(Name = "User-Agent")] string? userAgent)
+    public async Task<IActionResult> Refresh()
     {
         var refreshToken = Request.Cookies["refreshToken"];
         if (string.IsNullOrEmpty(refreshToken))
@@ -68,7 +64,8 @@ public sealed class AuthController : ControllerBase
             });
         }
 
-        var ipAddress = forwardedFor ?? HttpContext.Connection.RemoteIpAddress?.ToString();
+        var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+        var userAgent = Request.Headers.UserAgent.ToString();
         var result = await _authService.RefreshAsync(refreshToken, ipAddress, userAgent);
 
         SetRefreshTokenCookie(result.RefreshToken);
@@ -104,8 +101,8 @@ public sealed class AuthController : ControllerBase
         Response.Cookies.Delete("refreshToken", new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
+            Secure = Request.IsHttps,
+            SameSite = SameSiteMode.Lax,
             Path = "/api/v1/auth"
         });
 
@@ -126,8 +123,8 @@ public sealed class AuthController : ControllerBase
         Response.Cookies.Delete("refreshToken", new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
+            Secure = Request.IsHttps,
+            SameSite = SameSiteMode.Lax,
             Path = "/api/v1/auth"
         });
 
@@ -146,8 +143,8 @@ public sealed class AuthController : ControllerBase
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
-            Secure = !_env.IsDevelopment(),
-            SameSite = SameSiteMode.Strict,
+            Secure = Request.IsHttps,
+            SameSite = SameSiteMode.Lax,
             Path = "/api/v1/auth",
             Expires = DateTime.UtcNow.AddDays(7)
         };

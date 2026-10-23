@@ -86,6 +86,7 @@ public sealed class AppDbContext
         var changedEntries = ChangeTracker.Entries()
             .Where(e => e.Entity is not AuditLog &&
                         e.Entity is not Sequence &&
+                        e.Entity is not RefreshToken &&
                         e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)
             .ToList();
 
