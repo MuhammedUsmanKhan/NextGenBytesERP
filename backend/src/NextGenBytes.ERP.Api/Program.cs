@@ -8,6 +8,7 @@ using NextGenBytes.ERP.Api.Authorization;
 using NextGenBytes.ERP.Api.Middleware;
 using NextGenBytes.ERP.Api;
 using NextGenBytes.ERP.Application;
+using NextGenBytes.ERP.Application.Common.Options;
 using NextGenBytes.ERP.Infrastructure;
 
 Env.Load();
@@ -19,6 +20,9 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.KnownIPNetworks.Clear();
     options.KnownProxies.Clear();
 });
+
+builder.Services.Configure<ModuleOptions>(
+    builder.Configuration.GetSection(ModuleOptions.SectionName));
 
 builder.Services
     .AddApplication()

@@ -1,8 +1,9 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { NavLink, useLocation } from "react-router-dom"
 import { motion } from "motion/react"
 import { cn } from "@/lib/utils"
 import { useSidebar } from "@/hooks/useSidebar"
+import { useModuleStore, type ActiveModules } from "@/stores/module.store"
 import {
   LayoutDashboard,
   ShoppingBag,
@@ -21,23 +22,53 @@ import {
   ArrowLeftRight,
   History,
   ChevronDown,
+  Banknote,
+  CalendarCheck,
+  CreditCard,
+  Calculator,
 } from "lucide-react"
 
-const navigation = [
+interface NavItem {
+  name: string
+  icon: React.ComponentType<{ className?: string }>
+  path?: string
+  module?: keyof ActiveModules
+  children?: {
+    name: string
+    path: string
+    icon?: React.ComponentType<{ className?: string }>
+  }[]
+}
+
+const navigation: NavItem[] = [
   { name: "Dashboard", icon: LayoutDashboard, path: "/" },
+  {
+    name: "Payroll",
+    icon: Banknote,
+    module: "payroll",
+    children: [
+      { name: "Employees", icon: Users, path: "/payroll/employees" },
+      { name: "Attendance", icon: CalendarCheck, path: "/payroll/attendance" },
+      { name: "Advances & Loans", icon: CreditCard, path: "/payroll/loans" },
+      { name: "Payroll Runs", icon: Calculator, path: "/payroll/runs" },
+      { name: "Reports & Denominations", icon: BarChart3, path: "/payroll/reports" },
+    ],
+  },
   {
     name: "Sales",
     icon: ShoppingBag,
+    module: "salesOrders",
     children: [
       { name: "Sales Orders", icon: ShoppingBag, path: "/sales" },
     ],
   },
-  { name: "Purchases", icon: Briefcase, path: "/purchases" },
-  { name: "Definitions", icon: Sliders, path: "/definitions" },
-  { name: "Products", icon: Package, path: "/products" },
+  { name: "Purchases", icon: Briefcase, path: "/purchases", module: "purchases" },
+  { name: "Definitions", icon: Sliders, path: "/definitions", module: "definitions" },
+  { name: "Products", icon: Package, path: "/products", module: "inventory" },
   {
     name: "Inventory",
     icon: Warehouse,
+    module: "inventory",
     children: [
       { name: "Opening Stock", icon: ClipboardList, path: "/inventory/opening-stock" },
       { name: "Stock Summary", icon: Layers, path: "/inventory/stock" },
@@ -48,6 +79,7 @@ const navigation = [
   {
     name: "Administration",
     icon: Shield,
+    module: "administration",
     children: [
       { name: "Users", icon: Users, path: "/users" },
       { name: "Roles", icon: Shield, path: "/roles" },
@@ -60,16 +92,27 @@ const navigation = [
 export function Sidebar() {
   const { collapsed, setCollapsed } = useSidebar()
   const { pathname } = useLocation()
-  const defaultExpanded = navigation
-    .filter((item) => "children" in item)
+  const { isModuleEnabled, fetchModules } = useModuleStore()
+
+  useEffect(() => {
+    fetchModules()
+  }, [fetchModules])
+
+  const visibleNavigation = navigation.filter(
+    (item) => !item.module || isModuleEnabled(item.module)
+  )
+
+  const defaultExpanded = visibleNavigation
+    .filter((item) => item.children && item.children.length > 0)
     .filter((item) => item.children?.some((child) => pathname.startsWith(child.path)))
     .map((item) => item.name)
+
   const [expandedGroups, setExpandedGroups] = useState<string[]>(defaultExpanded)
   const [lastPath, setLastPath] = useState(pathname)
 
   if (pathname !== lastPath) {
-    const names = navigation
-      .filter((item) => "children" in item)
+    const names = visibleNavigation
+      .filter((item) => item.children && item.children.length > 0)
       .filter((item) => item.children?.some((child) => pathname.startsWith(child.path)))
       .map((item) => item.name)
     setLastPath(pathname)
@@ -112,12 +155,12 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto">
-        {navigation.map((item) => {
-          if (!("children" in item)) {
+        {visibleNavigation.map((item) => {
+          if (!item.children || item.children.length === 0) {
             return (
               <NavLink
                 key={item.name}
-                to={item.path}
+                to={item.path ?? "/"}
                 className={({ isActive }) =>
                   cn(
                     "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
@@ -159,10 +202,11 @@ export function Sidebar() {
           return (
             <div key={item.name}>
               <button
+                type="button"
                 onClick={() => toggleGroup(item.name)}
                 title={collapsed ? item.name : undefined}
                 className={cn(
-                  "group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
+                  "group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all cursor-pointer",
                   active
                     ? "bg-blue-50 text-blue-600"
                     : "text-slate-600 hover:bg-slate-50 hover:text-slate-900",
@@ -204,7 +248,7 @@ export function Sidebar() {
                   className="overflow-hidden"
                 >
                   <div className="ml-2 mt-1 space-y-1 border-l border-slate-100 pl-3">
-                    {item.children?.map((child) => (
+                    {item.children.map((child) => (
                       <NavLink
                         key={child.path}
                         to={child.path}
@@ -219,7 +263,7 @@ export function Sidebar() {
                       >
                         {({ isActive }: { isActive: boolean }) => (
                           <>
-                            {"icon" in child && child.icon ? (
+                            {child.icon ? (
                               <child.icon className={cn("h-4 w-4 shrink-0", isActive ? "text-blue-600" : "text-slate-400")} />
                             ) : (
                               <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", isActive ? "bg-blue-600" : "bg-slate-300")} />

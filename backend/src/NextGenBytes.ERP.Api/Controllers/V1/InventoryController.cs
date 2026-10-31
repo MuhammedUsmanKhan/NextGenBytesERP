@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NextGenBytes.ERP.Api.Authorization;
 using NextGenBytes.ERP.Application.Inventory.DTOs;
 using NextGenBytes.ERP.Application.Inventory.Interfaces;
 
@@ -8,6 +9,7 @@ namespace NextGenBytes.ERP.Api.Controllers.V1;
 [ApiController]
 [Route("api/v1/inventory")]
 [Authorize]
+[ModuleGate("Inventory")]
 public sealed class InventoryController : ControllerBase
 {
     private readonly IInventoryService _inventoryService;

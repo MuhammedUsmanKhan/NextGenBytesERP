@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NextGenBytes.ERP.Api.Authorization;
 using NextGenBytes.ERP.Application.Common;
 using NextGenBytes.ERP.Application.SalesOrders.DTOs;
 using NextGenBytes.ERP.Application.SalesOrders.Interfaces;
@@ -9,6 +10,7 @@ namespace NextGenBytes.ERP.Api.Controllers.V1;
 [ApiController]
 [Route("api/v1/sales-orders")]
 [Authorize]
+[ModuleGate("SalesOrders")]
 public sealed class SalesOrdersController : ControllerBase
 {
     private readonly ISalesOrderService _salesOrderService;
