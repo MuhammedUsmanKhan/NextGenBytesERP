@@ -8,6 +8,7 @@ using NextGenBytes.ERP.Domain.Audit;
 using NextGenBytes.ERP.Domain.Authentication;
 using NextGenBytes.ERP.Domain.Definitions;
 using NextGenBytes.ERP.Domain.Inventory;
+using NextGenBytes.ERP.Domain.Payroll;
 using NextGenBytes.ERP.Domain.Products;
 using NextGenBytes.ERP.Domain.SalesOrders;
 using NextGenBytes.ERP.Infrastructure.Identity;
@@ -53,6 +54,20 @@ public sealed class AppDbContext
     public DbSet<InvEntity> Inventories => Set<InvEntity>();
     public DbSet<InventoryTransaction> InventoryTransactions => Set<InventoryTransaction>();
 
+    // Payroll Module
+    public DbSet<Employee> Employees => Set<Employee>();
+    public DbSet<EmployeeContract> EmployeeContracts => Set<EmployeeContract>();
+    public DbSet<ShiftDefinition> ShiftDefinitions => Set<ShiftDefinition>();
+    public DbSet<RawPunchLog> RawPunchLogs => Set<RawPunchLog>();
+    public DbSet<DailyAttendance> DailyAttendances => Set<DailyAttendance>();
+    public DbSet<CompanyCalendarHoliday> CompanyCalendarHolidays => Set<CompanyCalendarHoliday>();
+    public DbSet<ShiftRosterAssignment> ShiftRosterAssignments => Set<ShiftRosterAssignment>();
+    public DbSet<AttendanceSummary> AttendanceSummaries => Set<AttendanceSummary>();
+    public DbSet<LoanAndAdvance> LoansAndAdvances => Set<LoanAndAdvance>();
+    public DbSet<PayrollRun> PayrollRuns => Set<PayrollRun>();
+    public DbSet<Payslip> Payslips => Set<Payslip>();
+    public DbSet<PayslipDenomination> PayslipDenominations => Set<PayslipDenomination>();
+
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -87,6 +102,7 @@ public sealed class AppDbContext
             .Where(e => e.Entity is not AuditLog &&
                         e.Entity is not Sequence &&
                         e.Entity is not RefreshToken &&
+                        e.Entity is not PayslipDenomination &&
                         e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)
             .ToList();
 

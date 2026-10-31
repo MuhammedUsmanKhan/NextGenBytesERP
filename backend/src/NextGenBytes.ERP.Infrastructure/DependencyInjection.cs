@@ -11,9 +11,11 @@ using NextGenBytes.ERP.Application.Common.Interfaces;
 using NextGenBytes.ERP.Application.Definitions.Interfaces;
 using NextGenBytes.ERP.Application.Products.Interfaces;
 using NextGenBytes.ERP.Application.Inventory.Interfaces;
+using NextGenBytes.ERP.Application.Payroll.Interfaces;
 using NextGenBytes.ERP.Application.SalesOrders.Interfaces;
 using NextGenBytes.ERP.Infrastructure.Definitions.Services;
 using NextGenBytes.ERP.Infrastructure.Inventory.Services;
+using NextGenBytes.ERP.Infrastructure.Payroll.Services;
 using NextGenBytes.ERP.Infrastructure.SalesOrders.Services;
 using NextGenBytes.ERP.Infrastructure.Persistence;
 using NextGenBytes.ERP.Infrastructure.Products.Services;
@@ -72,6 +74,15 @@ public static class DependencyInjection
         services.AddScoped<IInventoryService, InventoryService>();
         services.AddScoped<IDepartmentService, DepartmentService>();
         services.AddScoped<ISalesOrderService, SalesOrderService>();
+        services.AddScoped<IEmployeeService, EmployeeService>();
+        services.AddScoped<IAttendanceService, AttendanceService>();
+        services.AddScoped<ILoanService, LoanService>();
+        services.AddScoped<IPayrollRunService, PayrollRunService>();
+        services.AddScoped<IDatFileParser, DatFileParser>();
+        services.AddScoped<IShiftPairingEngine, ShiftPairingEngine>();
+        services.AddScoped<IBiometricAttendanceService, BiometricAttendanceService>();
+        services.AddScoped<IShiftService, ShiftService>();
+        services.AddScoped<IShiftRosterService, ShiftRosterService>();
 
         return services;
     }
