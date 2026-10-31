@@ -71,6 +71,17 @@
   --color-rose-700: #be123c;
   --color-rose-800: #9f1239;
   --color-rose-900: #881337;
+
+  /* Theme semantic fallbacks */
+  --color-card: #ffffff;
+  --color-card-foreground: #0f172a;
+  --color-muted: #f8fafc;
+  --color-muted-foreground: #64748b;
+  --color-border: #e2e8f0;
+  --color-primary: #2563eb;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #f1f5f9;
+  --color-secondary-foreground: #1e293b;
 }
 
 * {
@@ -117,3 +128,56 @@ body {
 .animate-zoom-in {
   animation: zoomIn 0.25s ease-out forwards;
 }
+
+/* ==========================================================================
+   Industry-Standard Print & PDF Styling
+   ========================================================================== */
+@media print {
+  @page {
+    size: auto;
+    margin: 8mm 10mm;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11pt;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide application chrome, navigation, headers, and modals */
+  aside,
+  header,
+  nav,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Make sure print containers fill 100% width and retain crisp borders */
+  .printable-document {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+
+  /* Avoid awkward page breaks across table rows and voucher slips */
+  tr,
+  .avoid-break {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* High contrast table borders in print */
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+  }
+
+  th, td {
+    border-color: #cbd5e1 !important;
+  }
+}
+
